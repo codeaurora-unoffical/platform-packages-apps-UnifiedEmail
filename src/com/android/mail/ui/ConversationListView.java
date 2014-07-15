@@ -27,6 +27,7 @@ import com.android.mail.R;
 import com.android.mail.analytics.Analytics;
 import com.android.mail.preferences.AccountPreferences;
 import com.android.mail.preferences.MailPrefs;
+import com.android.mail.providers.Folder;
 import com.android.mail.providers.UIProvider.FolderCapabilities;
 import com.android.mail.providers.UIProvider.FolderType;
 import com.android.mail.ui.ConversationSyncDisabledTipView.ReasonSyncOff;
@@ -205,12 +206,13 @@ public class ConversationListView extends FrameLayout implements SwipeableListVi
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mTrackingScrollMovement) {
-                    if (mActivity.getFolderController().getFolder().isDraft()) {
+                    Folder folder = mActivity.getFolderController().getFolder();
+                    if (folder != null && folder.isDraft()) {
                         // Don't allow refreshing of DRAFT folders. See b/11158759
                         LogUtils.d(LOG_TAG, "ignoring swipe to refresh on DRAFT folder");
                         break;
                     }
-                    if (mActivity.getFolderController().getFolder().supportsCapability(
+                    if (folder != null && folder.supportsCapability(
                             FolderCapabilities.IS_VIRTUAL)) {
                         // Don't allow refreshing of virtual folders.
                         LogUtils.d(LOG_TAG, "ignoring swipe to refresh on virtual folder");
