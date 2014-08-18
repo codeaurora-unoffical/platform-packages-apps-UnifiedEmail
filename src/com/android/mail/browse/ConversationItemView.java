@@ -622,14 +622,16 @@ public class ConversationItemView extends View
         }
 
         final int ignoreFolderType;
-        if (mDisplayedFolder.isInbox()) {
+        if (mDisplayedFolder != null && mDisplayedFolder.isInbox()) {
             ignoreFolderType = FolderType.INBOX;
         } else {
             ignoreFolderType = -1;
         }
 
-        mHeader.folderDisplayer.loadConversationFolders(mHeader.conversation,
-                mDisplayedFolder.folderUri, ignoreFolderType);
+        if (mDisplayedFolder != null) {
+            mHeader.folderDisplayer.loadConversationFolders(mHeader.conversation,
+                    mDisplayedFolder.folderUri, ignoreFolderType);
+        }
 
         if (mHeader.dateOverrideText == null) {
             mHeader.dateText = DateUtils.getRelativeTimeSpanString(mContext,
