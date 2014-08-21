@@ -206,6 +206,10 @@ public class ConversationListView extends FrameLayout implements SwipeableListVi
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mTrackingScrollMovement) {
+                    if (mActivity == null || mActivity.getFolderController() == null
+                            || mActivity.getFolderController().getFolder() == null) {
+                        break;
+                    }
                     Folder folder = mActivity.getFolderController().getFolder();
                     if (folder != null && folder.isDraft()) {
                         // Don't allow refreshing of DRAFT folders. See b/11158759
