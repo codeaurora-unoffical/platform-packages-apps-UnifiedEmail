@@ -512,7 +512,12 @@ public final class ConversationCursor implements Cursor, ConversationCursorOpera
         }
 
         public Conversation getConversation() {
-            return mRowCache.get(getPosition()).conversation;
+            int position = getPosition();
+            if (position >= 0 && position < mRowCache.size()) {
+                return mRowCache.get(position).conversation;
+            } else {
+                return null;
+            }
         }
 
         public void cacheConversation(Conversation conversation) {
