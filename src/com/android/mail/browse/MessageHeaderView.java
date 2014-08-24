@@ -29,6 +29,7 @@ import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -208,6 +209,7 @@ public class MessageHeaderView extends LinearLayout implements OnClickListener,
         }
     };
 
+    private Handler mHandler = new Handler();
     private boolean mExpandable = true;
 
     private int mExpandMode = DEFAULT_MODE;
@@ -1097,7 +1099,15 @@ public class MessageHeaderView extends LinearLayout implements OnClickListener,
             if (expand) {
                 showDetailsPopup();
             } else {
-                hideDetailsPopup();
+                // The action maybe called in onloadfinish, and this action
+                // will commit new state to fragmentmanager,
+                // so post a runnable to avoid the exception
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        hideDetailsPopup();
+                    }
+                });
                 showCollapsedDetails();
             }
         }
