@@ -37,11 +37,21 @@
                 android:text="@string/cc"
                 style="@style/ComposeHeading" />
 
-                <com.android.ex.chips.RecipientEditTextView
-                    android:id="@+id/cc"
-                    android:contentDescription="@string/cc"
-                    android:dropDownAnchor="@id/cc_content"
-                    style="@style/RecipientEditTextViewStyle" />
+            <com.android.ex.chips.RecipientEditTextView
+                android:id="@+id/cc"
+                android:contentDescription="@string/cc"
+                android:dropDownAnchor="@id/cc_content"
+                style="@style/RecipientEditTextViewStyle"
+                android:layout_width="0dip"
+                android:layout_weight="1" />
+
+            <ImageButton android:id="@+id/cc_pick_recipients"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="4dip"
+                android:layout_gravity="bottom"
+                android:src="@drawable/ic_pick_recipients"
+                android:background="@null" />
 
         </LinearLayout>
 
@@ -70,7 +80,17 @@
                 android:id="@+id/bcc"
                 android:contentDescription="@string/bcc"
                 android:dropDownAnchor="@id/bcc_content"
-                style="@style/RecipientEditTextViewStyle" />
+                style="@style/RecipientEditTextViewStyle"
+                android:layout_width="0dip"
+                android:layout_weight="1" />
+
+            <ImageButton android:id="@+id/bcc_pick_recipients"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="4dip"
+                android:layout_gravity="bottom"
+                android:src="@drawable/ic_pick_recipients"
+                android:background="@null" />
 
         </LinearLayout>
 
