@@ -44,6 +44,7 @@ import com.android.mail.browse.WebViewContextMenu;
 import com.android.mail.print.PrintUtils;
 import com.android.mail.providers.Conversation;
 import com.android.mail.providers.Message;
+import com.android.mail.providers.UIProvider.MessageFlagLoaded;
 import com.android.mail.utils.ConversationViewUtils;
 
 /**
@@ -68,6 +69,7 @@ public class SecureConversationViewController implements
     private MessageFooterView mMessageFooterView;
     private ConversationMessage mMessage;
     private MessageScrollView mScrollView;
+    private ButteryProgressBar mFetchingProgressBar;
 
     private ConversationViewProgressController mProgressController;
     private FormattedDateBuilder mDateBuilder;
@@ -81,6 +83,7 @@ public class SecureConversationViewController implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.secure_conversation_view, container, false);
+        mFetchingProgressBar = (ButteryProgressBar) rootView.findViewById(R.id.fetching_progress);
         mScrollView = (MessageScrollView) rootView.findViewById(R.id.scroll_view);
         mConversationHeaderView = (ConversationViewHeader) rootView.findViewById(R.id.conv_header);
         mMessageHeaderView = (MessageHeaderView) rootView.findViewById(R.id.message_header);
@@ -212,9 +215,21 @@ public class SecureConversationViewController implements
         mSnapHeaderView.unbind();
         mSnapHeaderView.bind(item, false);
 
-        if (mMessage.hasAttachments) {
+        if (mMessage.hasAttachments
+                || mMessage.messageFlagLoaded == MessageFlagLoaded.FLAG_LOADED_PARTIAL_COMPLETE) {
+            // Do not have the attachment, but the flag is partial complete, it must contains
+            // the load more placeholder, and we will show it.
             mMessageFooterView.setVisibility(View.VISIBLE);
             mMessageFooterView.bind(item, false);
+        } else {
+            mMessageFooterView.setVisibility(View.GONE);
+        }
+        if (mMessage.messageFlagLoaded == MessageFlagLoaded.FLAG_LOADED_PARTIAL
+                || mMessage.messageFlagLoaded == MessageFlagLoaded.FLAG_LOADED_PARTIAL_FETCHING) {
+            mFetchingProgressBar.setVisibility(View.VISIBLE);
+            mFetchingProgressBar.setAlpha(1f);
+        } else {
+            mFetchingProgressBar.setVisibility(View.GONE);
         }
     }
 
