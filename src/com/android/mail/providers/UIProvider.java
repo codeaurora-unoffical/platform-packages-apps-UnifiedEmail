@@ -168,6 +168,7 @@ public class UIProvider {
             .put(AccountColumns.SettingsColumns.CONFIRM_DELETE, Integer.class)
             .put(AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, Integer.class)
             .put(AccountColumns.SettingsColumns.CONFIRM_SEND, Integer.class)
+            .put(AccountColumns.SettingsColumns.CONFIRM_FORWARD, Integer.class)
             .put(AccountColumns.SettingsColumns.DEFAULT_INBOX, String.class)
             .put(AccountColumns.SettingsColumns.DEFAULT_INBOX_NAME, String.class)
             .put(AccountColumns.SettingsColumns.FORCE_REPLY_FROM_DEFAULT, Integer.class)
@@ -316,6 +317,10 @@ public class UIProvider {
          * Whether the account supports nested folders
          */
         public static final int NESTED_FOLDERS = 0x800000;
+        /**
+         * Whether the account supports smart forward
+         */
+        public static final int SMART_FORWARD = 0x1000000;
     }
 
     public static final class AccountColumns implements BaseColumns {
@@ -563,6 +568,14 @@ public class UIProvider {
              * be shown when a send action is performed.
              */
             public static final String CONFIRM_SEND = "confirm_send";
+
+            /**
+             * Integer column containing the user's specified confirm forward preference value.
+             * A non zero value indicates that the user has indicated that a confirmation should
+             * be shown when a forward action is performed.
+             */
+            public static final String CONFIRM_FORWARD = "confirm_forward";
+
             /**
              * String containing the URI for the default inbox for this account.
              */
