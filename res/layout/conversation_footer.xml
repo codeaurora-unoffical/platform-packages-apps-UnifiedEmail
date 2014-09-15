@@ -27,8 +27,8 @@
         android:id="@+id/footer_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/conversation_border_margin_side"
-        android:layout_marginRight="@dimen/conversation_border_margin_side" >
+        android:layout_marginStart="@dimen/conversation_border_margin_side"
+        android:layout_marginEnd="@dimen/conversation_border_margin_side" >
 
         <TextView
             android:id="@+id/reply_button"

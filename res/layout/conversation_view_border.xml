@@ -19,6 +19,6 @@
     android:id="@+id/border"
     android:layout_width="match_parent"
     android:layout_height="@dimen/divider_height"
-    android:layout_marginLeft="@dimen/conversation_border_margin_side"
-    android:layout_marginRight="@dimen/conversation_border_margin_side"
+    android:layout_marginStart="@dimen/conversation_border_margin_side"
+    android:layout_marginEnd="@dimen/conversation_border_margin_side"
     android:background="@color/conversation_view_border_color" />

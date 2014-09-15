@@ -23,6 +23,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/attachment_title"
-        android:layout_marginRight="@dimen/message_attachment_bar_padding"
+        android:layout_marginEnd="@dimen/message_attachment_bar_padding"
         android:indeterminate="true"
         android:visibility="invisible"/>

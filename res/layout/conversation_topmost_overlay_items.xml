@@ -32,8 +32,8 @@
             android:layout_gravity="bottom|center_horizontal"
             android:animateLayoutChanges="true"
             android:gravity="center"
-            android:paddingLeft="@dimen/new_message_button_padding"
-            android:paddingRight="@dimen/new_message_button_padding"
+            android:paddingStart="@dimen/new_message_button_padding"
+            android:paddingEnd="@dimen/new_message_button_padding"
             android:visibility="gone"/>
 
 </merge>

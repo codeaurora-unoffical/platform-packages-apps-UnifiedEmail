@@ -41,8 +41,8 @@
             android:layout_height="64dp"
             android:paddingTop="16dp"
             android:paddingBottom="16dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
             style="@style/MiniDrawerItemStyleBase" />
 
         <ImageView

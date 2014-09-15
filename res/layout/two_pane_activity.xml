@@ -25,7 +25,7 @@
         android:id="@+id/drawer"
         android:layout_width="@dimen/two_pane_drawer_width_open"
         android:layout_height="match_parent"
-        android:layout_gravity="left">
+        android:layout_gravity="start">
 
         <include layout="@layout/drawer_fragment"
             android:layout_width="match_parent"
@@ -37,14 +37,14 @@
         android:id="@+id/conversation_list_pane"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_gravity="left"
+        android:layout_gravity="start"
         style="@style/TwoPaneConversationList" />
 
     <com.android.mail.ui.ConversationViewFrame
         android:id="@+id/conversation_pane"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_gravity="left">
+        android:layout_gravity="start">
 
         <include layout="@layout/conversation_pager"
             android:layout_width="match_parent"
@@ -56,7 +56,7 @@
         android:id="@+id/miscellaneous_pane"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_gravity="left" />
+        android:layout_gravity="start" />
 
     <include layout="@layout/floating_actions" />
 

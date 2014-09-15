@@ -42,7 +42,7 @@
             android:layout_weight="1"
             android:textAppearance="?android:attr/textAppearanceLargeInverse"
             android:layout_marginBottom="1dip"
-            android:paddingLeft="5dip"
+            android:paddingStart="5dip"
             android:textColor="@android:color/black"
             android:text="@string/network_error"/>
 
@@ -53,8 +53,8 @@
             android:textColor="@android:color/black"
             android:paddingTop="15dip"
             android:paddingBottom="15dip"
-            android:paddingLeft="20dip"
-            android:paddingRight="20dip"/>
+            android:paddingStart="20dip"
+            android:paddingEnd="20dip"/>
 
     </LinearLayout>
 
@@ -84,7 +84,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLargeInverse"
             android:layout_marginBottom="1dip"
-            android:paddingLeft="5dip"
+            android:paddingStart="5dip"
             android:textColor="@android:color/black"
             android:text="@string/load_more"/>
 

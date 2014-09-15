@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:text="@string/wait_for_sync_title"
         android:id="@+id/wait_for_sync_title"
-        android:layout_marginLeft="8dip"
+        android:layout_marginStart="8dip"
         android:layout_marginTop="8dip"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 

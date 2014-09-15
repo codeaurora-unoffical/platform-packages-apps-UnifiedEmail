@@ -68,9 +68,9 @@
                     android:focusable="true"
                     android:orientation="vertical"
                     android:paddingTop="8dip"
-                    android:paddingRight="5dip"
+                    android:paddingEnd="5dip"
                     android:paddingBottom="0dip"
-                    android:paddingLeft="5dip"
+                    android:paddingStart="5dip"
                     android:visibility="gone">
 
                     <include layout="@layout/compose_attachments" />

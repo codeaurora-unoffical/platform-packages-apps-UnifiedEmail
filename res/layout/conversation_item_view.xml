@@ -32,8 +32,8 @@
         android:id="@+id/conversation_item_frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/conv_list_padding"
-        android:layout_marginRight="@dimen/conv_list_padding"
+        android:layout_marginStart="@dimen/conv_list_padding"
+        android:layout_marginEnd="@dimen/conv_list_padding"
         android:orientation="horizontal">
 
         <View

@@ -22,14 +22,14 @@
     android:layout_width="match_parent"
     android:minHeight="@dimen/folder_list_item_minimum_height"
     android:background="@drawable/folder_item"
-    android:paddingLeft="48dp">
+    android:paddingStart="48dp">
 
     <ImageView
         android:id="@+id/folder_parent_icon"
         android:layout_width="16dip"
         android:layout_height="16dip"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:visibility="gone"
         android:src="@drawable/folder_parent_icon" />
 
@@ -41,21 +41,21 @@
         android:id="@+id/unread"
         style="@style/UnreadCountWithMarginEndStyle"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_toLeftOf="@id/folder_parent_icon"
+        android:layout_toStartOf="@id/folder_parent_icon"
         android:textColor="@color/folder_name_color_primary_invertible" />
 
     <TextView
         android:id="@+id/unseen"
         style="@style/UnseenCountWithMarginEndStyle"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_alignParentRight="true"
-        android:layout_toLeftOf="@id/folder_parent_icon" />
+        android:layout_alignParentEnd="true"
+        android:layout_toStartOf="@id/folder_parent_icon" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/unread"
+        android:layout_toStartOf="@id/unread"
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginTop="@dimen/folder_swatch_height"
         android:layout_marginBottom="@dimen/folder_swatch_height"
@@ -66,14 +66,14 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_centerVertical="true"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/name"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:layout_toRightOf="@id/folder_icon"
+            android:layout_toEndOf="@id/folder_icon"
             android:maxLines="2"
             android:ellipsize="end"
             android:textColor="@color/folder_name_color_primary_invertible"
@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_below="@id/name"
-            android:layout_toRightOf="@id/folder_icon"
+            android:layout_toEndOf="@id/folder_icon"
             android:textColor="@color/folder_name_color_primary_invertible"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:visibility="gone" />

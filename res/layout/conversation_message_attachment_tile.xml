@@ -42,8 +42,8 @@
         android:layout_alignWithParentIfMissing="true"
         android:orientation="vertical"
         android:gravity="center_vertical"
-        android:paddingLeft="8dip"
-        android:paddingRight="4dip">
+        android:paddingStart="8dip"
+        android:paddingEnd="4dip">
 
         <TextView
             android:id="@+id/attachment_tile_title"

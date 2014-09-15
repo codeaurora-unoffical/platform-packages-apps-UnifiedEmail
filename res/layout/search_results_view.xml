@@ -24,8 +24,8 @@
     android:background="@color/search_banner_bg"
     android:focusable="false"
     android:minHeight="@dimen/notification_view_height"
-    android:paddingLeft="@dimen/search_results_padding"
-    android:paddingRight="@dimen/search_results_padding">
+    android:paddingStart="@dimen/search_results_padding"
+    android:paddingEnd="@dimen/search_results_padding">
 
     <TextView
         android:id="@+id/search_status_text_view"

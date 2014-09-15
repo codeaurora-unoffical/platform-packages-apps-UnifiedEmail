@@ -33,8 +33,8 @@
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:paddingLeft="@dimen/drawer_footer_item_padding"
-        android:paddingRight="@dimen/drawer_footer_item_padding"
+        android:paddingStart="@dimen/drawer_footer_item_padding"
+        android:paddingEnd="@dimen/drawer_footer_item_padding"
         android:minHeight="@dimen/drawer_footer_item_minimum_height"
         android:gravity="center_vertical"
         android:background="@drawable/nonfolder_item">
