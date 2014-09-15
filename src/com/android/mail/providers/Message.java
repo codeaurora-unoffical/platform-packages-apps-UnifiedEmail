@@ -48,6 +48,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.james.mime4j.decoder.DecoderUtil;
+
 
 public class Message implements Parcelable, HtmlMessage {
     /**
@@ -496,7 +498,8 @@ public class Message implements Parcelable, HtmlMessage {
 
     public synchronized String[] getFromAddresses() {
         if (mFromAddresses == null) {
-            mFromAddresses = tokenizeAddresses(mFrom);
+            mFromAddresses = tokenizeAddresses(mFrom == null ? null :
+                    DecoderUtil.decodeEncodedWords(mFrom));
         }
         return mFromAddresses;
     }
@@ -507,7 +510,8 @@ public class Message implements Parcelable, HtmlMessage {
 
     public synchronized String[] getToAddresses() {
         if (mToAddresses == null) {
-            mToAddresses = tokenizeAddresses(mTo);
+            mToAddresses = tokenizeAddresses(mTo == null ? null :
+                    DecoderUtil.decodeEncodedWords(mTo));
         }
         return mToAddresses;
     }
@@ -518,7 +522,8 @@ public class Message implements Parcelable, HtmlMessage {
 
     public synchronized String[] getCcAddresses() {
         if (mCcAddresses == null) {
-            mCcAddresses = tokenizeAddresses(mCc);
+            mCcAddresses = tokenizeAddresses(mCc == null ? null :
+                    DecoderUtil.decodeEncodedWords(mCc));
         }
         return mCcAddresses;
     }
@@ -529,7 +534,8 @@ public class Message implements Parcelable, HtmlMessage {
 
     public synchronized String[] getBccAddresses() {
         if (mBccAddresses == null) {
-            mBccAddresses = tokenizeAddresses(mBcc);
+            mBccAddresses = tokenizeAddresses(mBcc == null ? null :
+                    DecoderUtil.decodeEncodedWords(mBcc));
         }
         return mBccAddresses;
     }
@@ -540,7 +546,8 @@ public class Message implements Parcelable, HtmlMessage {
 
     public synchronized String[] getReplyToAddresses() {
         if (mReplyToAddresses == null) {
-            mReplyToAddresses = tokenizeAddresses(mReplyTo);
+            mReplyToAddresses = tokenizeAddresses(mReplyTo == null ? null :
+                    DecoderUtil.decodeEncodedWords(mReplyTo));
         }
         return mReplyToAddresses;
     }
