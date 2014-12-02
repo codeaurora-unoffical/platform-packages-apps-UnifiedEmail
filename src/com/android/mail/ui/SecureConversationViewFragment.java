@@ -156,9 +156,9 @@ public class SecureConversationViewFragment extends AbstractConversationViewFrag
     @Override
     public void setupConversationHeaderView(ConversationViewHeader headerView) {
         headerView.setCallbacks(this, this, getListController());
-        headerView.setFolders(mConversation);
         headerView.setSubject(mConversation.subject);
         headerView.setStarred(mConversation.starred);
+        headerView.setFolders(mConversation);
     }
 
     @Override
