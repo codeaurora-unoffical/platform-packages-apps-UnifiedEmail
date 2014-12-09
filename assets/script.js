@@ -504,6 +504,11 @@ function rewriteRelativeImageSrc(imgElement) {
         return src;
     }
 
+    // preserve cid urls as is
+    if (src.substring(0, 4) == "cid:") {
+        return src;
+    }
+
     return null;
 };
 
@@ -557,7 +562,7 @@ function handleAllImageOnLoads() {
 function blockImage(imageElement) {
     var src = imageElement.src;
     if (src.indexOf("http://") == 0 || src.indexOf("https://") == 0 ||
-            src.indexOf("content://") == 0) {
+            src.indexOf("content://") == 0 || src.indexOf("cid:") == 0) {
         imageElement.setAttribute(BLOCKED_SRC_ATTR, src);
         imageElement.src = "data:";
     }
@@ -748,8 +753,14 @@ function replaceMessageBodies(messageIds) {
     for (i = 0, len = messageIds.length; i < len; i++) {
         id = messageIds[i];
         msgContentDiv = document.querySelector("#" + id + " > .mail-message-content");
-        msgContentDiv.innerHTML = window.mail.getMessageBody(id);
-        processNewMessageBody(msgContentDiv);
+        // Check if we actually have a div before trying to replace this message body.
+        if (msgContentDiv) {
+            msgContentDiv.innerHTML = window.mail.getMessageBody(id);
+            processNewMessageBody(msgContentDiv);
+        } else {
+            // There's no message div, just skip it. We're in a really busted state.
+            console.log("Mail message content for msg " + id + " to replace not found.");
+        }
     }
     measurePositions();
 }

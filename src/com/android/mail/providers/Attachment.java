@@ -265,7 +265,11 @@ public class Attachment implements Parcelable {
             providerData = null;
             supportsDownloadAgain = false;
             destination = AttachmentDestination.CACHE;
-            type = inline ? AttachmentType.INLINE_CURRENT_MESSAGE : AttachmentType.STANDARD;
+            if (inline || !TextUtils.isEmpty(cid)) {
+                type = AttachmentType.INLINE_CURRENT_MESSAGE;
+            } else {
+                type = AttachmentType.STANDARD;
+            }
             partId = cid;
             flags = 0;
             messageLoadMoreUri = null;
