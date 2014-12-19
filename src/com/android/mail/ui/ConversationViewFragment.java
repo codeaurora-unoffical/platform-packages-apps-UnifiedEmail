@@ -41,6 +41,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -826,7 +827,7 @@ public class ConversationViewFragment extends AbstractConversationViewFragment i
         final boolean applyTransforms = shouldApplyTransforms();
 
         // If the conversation has specified a base uri, use it here, otherwise use mBaseUri
-        return mTemplates.endConversation(convFooterPx, mBaseUri,
+        return mTemplates.endConversation(mWebView.screenPxToWebPx(convFooterPx), mBaseUri,
                 mConversation.getBaseUri(mBaseUri),
                 mWebView.getViewportWidth(), mWebView.getWidthInDp(mSideMarginPx),
                 enableContentReadySignal, isOverviewMode(mAccount), applyTransforms,
@@ -1231,6 +1232,23 @@ public class ConversationViewFragment extends AbstractConversationViewFragment i
     public class ConversationWebViewClient extends AbstractConversationWebViewClient {
         public ConversationWebViewClient(Account account) {
             super(account);
+        }
+
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            // try to locate the message associated with the url
+            final ConversationMessage message = getMessageForClickedUrl(url);
+            if (message != null) {
+                // try to load the url assuming it is a cid url
+                final Uri uri = Uri.parse(url);
+                final WebResourceResponse response = loadCIDUri(uri, message);
+                if (response != null) {
+                    return response;
+                }
+            }
+
+            // otherwise, attempt the default handling
+            return super.shouldInterceptRequest(view, url);
         }
 
         @Override

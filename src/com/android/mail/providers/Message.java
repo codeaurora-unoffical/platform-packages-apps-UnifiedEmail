@@ -406,7 +406,7 @@ public class Message implements Parcelable, HtmlMessage {
                     .parse(attachmentsUri) : null;
             final String attachmentsByCidUri = cursor
                     .getString(UIProvider.MESSAGE_ATTACHMENT_BY_CID_URI_COLUMN);
-            attachmentByCidUri = hasAttachments && !TextUtils.isEmpty(attachmentsByCidUri) ?
+            attachmentByCidUri = !TextUtils.isEmpty(attachmentsByCidUri) ?
                     Uri.parse(attachmentsByCidUri) : null;
             messageFlags = cursor.getLong(UIProvider.MESSAGE_FLAGS_COLUMN);
             alwaysShowImages = cursor.getInt(UIProvider.MESSAGE_ALWAYS_SHOW_IMAGES_COLUMN) != 0;

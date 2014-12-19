@@ -29,7 +29,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/ComposeFieldContent">
+            style="@style/ComposeFieldContent"
+            android:paddingEnd="0dp">
 
             <TextView
                 android:id="@+id/cc_label"
@@ -45,13 +46,14 @@
                 android:layout_width="0dip"
                 android:layout_weight="1" />
 
-            <ImageButton android:id="@+id/cc_pick_recipients"
+            <ImageButton
+                android:id="@+id/cc_pick_recipients"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="4dip"
-                android:layout_gravity="bottom"
+                android:layout_gravity="top"
+                android:padding="10dip"
                 android:src="@drawable/ic_pick_recipients"
-                android:background="@null" />
+                android:background="?android:attr/selectableItemBackground" />
 
         </LinearLayout>
 
@@ -68,7 +70,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/ComposeFieldContent">
+            style="@style/ComposeFieldContent"
+            android:paddingEnd="0dp">
 
             <TextView
                 android:id="@+id/bcc_label"
@@ -84,13 +87,14 @@
                 android:layout_width="0dip"
                 android:layout_weight="1" />
 
-            <ImageButton android:id="@+id/bcc_pick_recipients"
+            <ImageButton
+                android:id="@+id/bcc_pick_recipients"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="4dip"
-                android:layout_gravity="bottom"
+                android:layout_gravity="top"
+                android:padding="10dip"
                 android:src="@drawable/ic_pick_recipients"
-                android:background="@null" />
+                android:background="?android:attr/selectableItemBackground" />
 
         </LinearLayout>
 
