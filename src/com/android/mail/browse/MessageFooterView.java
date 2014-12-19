@@ -270,8 +270,8 @@ public class MessageFooterView extends LinearLayout implements DetachListener,
     private Integer getAttachmentLoaderId() {
         Integer id = null;
         final Message msg = mMessageHeaderItem == null ? null : mMessageHeaderItem.getMessage();
-        if (msg != null && msg.hasAttachments && msg.attachmentListUri != null) {
-            id = msg.attachmentListUri.hashCode();
+        if (msg != null && msg.hasAttachments && msg.attachmentsJson != null) {
+            id = msg.attachmentsJson.hashCode();
         }
         return id;
     }
