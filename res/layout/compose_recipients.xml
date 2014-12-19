@@ -29,8 +29,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingEnd="0dp"
-            style="@style/ComposeFieldContent">
+            style="@style/ComposeFieldContent"
+            android:paddingEnd="0dp">
 
             <TextView
                 android:id="@+id/to_label"
@@ -55,19 +55,30 @@
                         android:layout_width="0dip"
                         android:layout_weight="1" />
 
-                    <ImageButton android:id="@+id/to_pick_recipients"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="4dip"
-                        android:layout_gravity="bottom"
-                        android:src="@drawable/ic_pick_recipients"
-                        android:background="@null" />
+                        android:layout_height="wrap_content">
 
-                    <ImageView
-                        android:id="@+id/add_cc_bcc"
-                        android:src="@drawable/ic_expand_more_24dp"
-                        android:contentDescription="@string/add_cc_label"
-                        style="@style/ComposeFieldButton" />
+                        <ImageButton
+                            android:id="@+id/to_pick_recipients"
+                            android:layout_width="@dimen/compose_header_min_height"
+                            android:layout_height="@dimen/compose_header_min_height"
+                            android:layout_alignParentTop="true"
+                            android:padding="10dip"
+                            android:src="@drawable/ic_pick_recipients"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                        <ImageView
+                            android:id="@+id/add_cc_bcc"
+                            android:layout_toEndOf="@+id/to_pick_recipients"
+                            android:src="@drawable/ic_expand_more_24dp"
+                            android:contentDescription="@string/add_cc_label"
+                            android:scaleType="center"
+                            style="@style/ComposeFieldButton"
+                            android:padding="10dip"
+                            android:layout_marginStart="0dip" />
+
+                    </RelativeLayout>
 
                 </LinearLayout>
 
