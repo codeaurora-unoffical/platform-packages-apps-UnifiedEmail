@@ -2422,7 +2422,7 @@ public abstract class AbstractActivityController implements ActivityController,
                     intent.getParcelableExtra(Utils.EXTRA_CONVERSATION));
             restartOptionalLoader(LOADER_FIRST_FOLDER, mFolderCallbacks, args);
         } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            if (intent.hasExtra(Utils.EXTRA_ACCOUNT)) {
+            if (intent.getParcelableExtra(Utils.EXTRA_ACCOUNT) != null) {
                 mHaveSearchResults = false;
                 // Save this search query for future suggestions.
                 final String query = intent.getStringExtra(SearchManager.QUERY);
