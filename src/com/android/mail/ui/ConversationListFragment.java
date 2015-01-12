@@ -1115,6 +1115,10 @@ public final class ConversationListFragment extends Fragment implements
             // If you save your scroll position in an empty list, you're gonna have a bad time
             return;
         }
+        // Not save scroll position, if necessary
+        if (mFolder == null) {
+            return;
+        }
 
         final Parcelable savedState = mListView.onSaveInstanceState();
 
