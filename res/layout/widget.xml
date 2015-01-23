@@ -48,7 +48,6 @@
             style="@style/WidgetTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:freezesText="true"
             android:layout_toStartOf="@id/widget_compose"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
