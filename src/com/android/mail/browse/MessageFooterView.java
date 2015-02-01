@@ -122,6 +122,10 @@ public class MessageFooterView extends LinearLayout implements DetachListener,
             mLoaderManager.destroyLoader(oldAttachmentLoaderId);
         }
 
+        if (oldAttachmentLoaderId != null) {
+            mLoaderManager.destroyLoader(oldAttachmentLoaderId);
+        }
+
         // kick off load of Attachment objects in background thread
         // but don't do any Loader work if we're only measuring
         if (!measureOnly && attachmentLoaderId != null) {
