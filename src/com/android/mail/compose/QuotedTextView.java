@@ -37,6 +37,8 @@ import com.android.mail.utils.Utils;
 import java.text.DateFormat;
 import java.util.Date;
 
+import org.apache.james.mime4j.decoder.DecoderUtil;
+
 /*
  * View for displaying the quoted text in the compose screen for a reply
  * or forward. A close button is included in the upper right to remove
@@ -253,13 +255,17 @@ class QuotedTextView extends LinearLayout implements OnClickListener {
         Date date = new Date(refMessage.dateReceivedMs);
         Resources resources = getContext().getResources();
         if (action == ComposeActivity.REPLY || action == ComposeActivity.REPLY_ALL) {
+            String fromAddresses = refMessage.getFrom();
+            if (fromAddresses != null) {
+                fromAddresses = DecoderUtil.decodeEncodedWords(fromAddresses);
+            }
             quotedText.append(sQuoteBegin);
             quotedText
                     .append(String.format(
                             resources.getString(R.string.reply_attribution),
                             dateFormat.format(date),
                             Utils.cleanUpString(
-                                    refMessage.getFrom(), true)));
+                                    fromAddresses, true)));
             quotedText.append(HEADER_SEPARATOR);
             quotedText.append(BLOCKQUOTE_BEGIN);
             quotedText.append(htmlText);
@@ -267,15 +273,26 @@ class QuotedTextView extends LinearLayout implements OnClickListener {
             quotedText.append(QUOTE_END);
         } else if (action == ComposeActivity.FORWARD
                 || action == ComposeActivity.FORWARD_DROP_UNLOADED_ATTS) {
+            String fromAddresses = refMessage.getFrom();
+            String toAddresses = refMessage.getTo();
+            if (fromAddresses != null) {
+                fromAddresses = DecoderUtil.decodeEncodedWords(fromAddresses);
+            }
+            if (toAddresses != null) {
+                toAddresses = DecoderUtil.decodeEncodedWords(toAddresses);
+            }
             quotedText.append(sQuoteBegin);
             quotedText
                     .append(String.format(resources.getString(R.string.forward_attribution), Utils
-                            .cleanUpString(refMessage.getFrom(),
+                            .cleanUpString(fromAddresses,
                                     true /* remove empty quotes */), dateFormat.format(date), Utils
                             .cleanUpString(refMessage.subject,
                                     false /* don't remove empty quotes */), Utils.cleanUpString(
-                            refMessage.getTo(), true)));
+                            toAddresses, true)));
             String ccAddresses = refMessage.getCc();
+            if (ccAddresses != null) {
+                ccAddresses = DecoderUtil.decodeEncodedWords(ccAddresses);
+            }
             quotedText.append(String.format(resources.getString(R.string.cc_attribution),
                     Utils.cleanUpString(ccAddresses, true /* remove empty quotes */)));
             quotedText.append(HEADER_SEPARATOR);
