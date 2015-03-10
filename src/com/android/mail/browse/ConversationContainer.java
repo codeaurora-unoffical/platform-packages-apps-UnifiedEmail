@@ -20,7 +20,7 @@ package com.android.mail.browse;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
-import android.support.annotation.IdRes;
+import android.graphics.Rect;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.SparseArray;
@@ -41,8 +41,10 @@ import com.android.mail.utils.DequeMap;
 import com.android.mail.utils.InputSmoother;
 import com.android.mail.utils.LogUtils;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * A specialized ViewGroup container for conversation view. It is designed to contain a single
@@ -877,7 +879,7 @@ public class ConversationContainer extends ViewGroup implements ScrollListener {
     }
 
     private class AddViewRunnable implements Runnable {
-        public final View mView;
+        private final View mView;
 
         public AddViewRunnable(View view) {
             mView = view;
@@ -996,6 +998,20 @@ public class ConversationContainer extends ViewGroup implements ScrollListener {
         if (overlay != null) {
             final int height = getHeight();
             onOverlayScrolledOff(adapterIndex, overlay, height, height + overlay.view.getHeight());
+            LogUtils.i(TAG, "footer scrolled off. container height=%s, measuredHeight=%s",
+                    height, getMeasuredHeight());
+        } else {
+            LogUtils.i(TAG, "footer not found with adapterIndex=%s", adapterIndex);
+            for (int i = 0, size = mOverlayViews.size(); i < size; i++) {
+                final int index = mOverlayViews.keyAt(i);
+                final OverlayView overlayView = mOverlayViews.valueAt(i);
+                LogUtils.i(TAG, "OverlayView: adapterIndex=%s, itemType=%s, view=%s",
+                        index, overlayView.itemType, overlayView.view);
+            }
+            for (int i = 0, size = mOverlayAdapter.getCount(); i < size; i++) {
+                final ConversationOverlayItem item = mOverlayAdapter.getItem(i);
+                LogUtils.i(TAG, "adapter item: index=%s, item=%s", i, item);
+            }
         }
         // restore the offset to its original value after the view has been moved off-screen.
         mOffsetY = offsetY;
@@ -1008,29 +1024,28 @@ public class ConversationContainer extends ViewGroup implements ScrollListener {
         LogUtils.d(TAG, msg, params);
     }
 
+    @Override
+    protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+        if (mOverlayAdapter != null) {
+            return mOverlayAdapter.focusFirstMessageHeader();
+        }
+        return false;
+    }
+
     public void focusFirstMessageHeader() {
         mOverlayAdapter.focusFirstMessageHeader();
     }
 
-    public int getOverlayCount() {
-        return mOverlayAdapter.getCount();
-    }
-
-    public int getViewPosition(View v) {
-        return mOverlayAdapter.getViewPosition(v);
-    }
-
-    public View getNextOverlayView(int position, boolean isDown) {
-        return mOverlayAdapter.getNextOverlayView(position, isDown);
-    }
-
-    public boolean shouldInterceptLeftRightEvents(@IdRes int id, boolean isLeft, boolean isRight,
-            boolean twoPaneLand) {
-        return mOverlayAdapter.shouldInterceptLeftRightEvents(id, isLeft, isRight, twoPaneLand);
-    }
-
-    public boolean shouldNavigateAway(@IdRes int id, boolean isLeft, boolean twoPaneLand) {
-        return mOverlayAdapter.shouldNavigateAway(id, isLeft, twoPaneLand);
+    public View getNextOverlayView(View curr, boolean isDown) {
+        // Find the scraps that we should avoid when fetching the next view.
+        final Set<View> scraps = Sets.newHashSet();
+        mScrapViews.visitAll(new DequeMap.Visitor<View>() {
+            @Override
+            public void visit(View item) {
+                scraps.add(item);
+            }
+        });
+        return mOverlayAdapter.getNextOverlayView(curr, isDown, scraps);
     }
 
     private class AdapterObserver extends DataSetObserver {
