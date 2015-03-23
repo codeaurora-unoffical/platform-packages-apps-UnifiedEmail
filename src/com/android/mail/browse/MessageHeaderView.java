@@ -23,11 +23,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.support.v4.text.BidiFormatter;
 import android.text.Html;
 import android.text.Spannable;
@@ -70,6 +65,7 @@ import com.android.mail.providers.UIProvider.MessageFlagLoaded;
 import com.android.mail.text.EmailAddressSpan;
 import com.android.mail.ui.AbstractConversationViewFragment;
 import com.android.mail.ui.ImageCanvas;
+import com.android.mail.utils.BitmapUtil;
 import com.android.mail.utils.LogTag;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.StyleUtils;
@@ -533,10 +529,8 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
         switch (mSendingState) {
             case UIProvider.ConversationSendingState.QUEUED:
             case UIProvider.ConversationSendingState.SENDING:
-                title = getResources().getString(R.string.sending);
-                break;
             case UIProvider.ConversationSendingState.RETRYING:
-                title = getResources().getString(R.string.message_retrying);
+                title = getResources().getString(R.string.sending);
                 break;
             case UIProvider.ConversationSendingState.SEND_ERROR:
                 title = getResources().getString(R.string.message_failed);
@@ -640,7 +634,6 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
             }
 
             setReplyOrReplyAllVisible();
-
             setChildVisibility(normalVis, mPhotoView, mForwardButton, mOverflowButton);
             setChildVisibility(draftVis, mDraftIcon, mEditDraftButton);
             setChildVisibility(VISIBLE, mRecipientSummary);
@@ -726,7 +719,7 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
 
         builder.append(to);
         builder.append(cc);
-        builder.append(bcc);
+        builder.appendBcc(bcc);
 
         return builder.build();
     }
@@ -745,7 +738,7 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
         private final BidiFormatter mBidiFormatter;
 
         int mRecipientCount = 0;
-        boolean mFirst = true;
+        boolean mSkipComma = true;
 
         public RecipientListsBuilder(Context context, String meEmailAddress, String myName,
                 Map<String, Address> addressCache, VeiledAddressMatcher matcher,
@@ -767,6 +760,20 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
             }
         }
 
+        public void appendBcc(String[] recipients) {
+            final int addLimit = SUMMARY_MAX_RECIPIENTS - mRecipientCount;
+            if (shouldAppendRecipients(recipients, addLimit)) {
+                // add the comma before the bcc header
+                // and then reset mSkipComma so we don't add a comma after "bcc: "
+                if (!mSkipComma) {
+                    mBuilder.append(mComma);
+                    mSkipComma = true;
+                }
+                mBuilder.append(mContext.getString(R.string.bcc_header_for_recipient_summary));
+            }
+            append(recipients);
+        }
+
         /**
          * Appends formatted recipients of the message to the recipient list,
          * as long as there are recipients left to append and the maximum number
@@ -775,9 +782,8 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
          * @param maxToCopy The maximum number of addresses to append.
          * @return {@code true} if a recipient has been appended. {@code false}, otherwise.
          */
-        private boolean appendRecipients(String[] rawAddrs,
-                int maxToCopy) {
-            if (rawAddrs == null || rawAddrs.length == 0 || maxToCopy == 0) {
+        private boolean appendRecipients(String[] rawAddrs, int maxToCopy) {
+            if (!shouldAppendRecipients(rawAddrs, maxToCopy)) {
                 return false;
             }
 
@@ -800,8 +806,8 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
                 }
 
                 // duplicate TextUtils.join() logic to minimize temporary allocations
-                if (mFirst) {
-                    mFirst = false;
+                if (mSkipComma) {
+                    mSkipComma = false;
                 } else {
                     mBuilder.append(mComma);
                 }
@@ -809,6 +815,15 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
             }
 
             return true;
+        }
+
+        /**
+         * @param rawAddrs The addresses to append.
+         * @param maxToCopy The maximum number of addresses to append.
+         * @return {@code true} if a recipient should be appended. {@code false}, otherwise.
+         */
+        private boolean shouldAppendRecipients(String[] rawAddrs, int maxToCopy) {
+            return rawAddrs != null && rawAddrs.length != 0 && maxToCopy != 0;
         }
 
         public CharSequence build() {
@@ -835,7 +850,6 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
         boolean photoSet = false;
         final String email = mSender.getAddress();
         final ContactInfo info = mContactInfoSource.getContactInfo(email);
-        final Resources res = getResources();
         if (info != null) {
             if (info.contactUri != null) {
                 mPhotoView.assignContactUri(info.contactUri);
@@ -844,7 +858,7 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
             }
 
             if (info.photo != null) {
-                mPhotoView.setImageBitmap(frameBitmapInCircle(info.photo));
+                mPhotoView.setImageBitmap(BitmapUtil.frameBitmapInCircle(info.photo));
                 photoSet = true;
             }
         } else {
@@ -853,59 +867,19 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
 
         if (!photoSet) {
             mPhotoView.setImageBitmap(
-                    frameBitmapInCircle(makeLetterTile(mSender.getPersonal(), email)));
+                    BitmapUtil.frameBitmapInCircle(makeLetterTile(mSender.getPersonal(), email)));
         }
     }
 
     private Bitmap makeLetterTile(
             String displayName, String senderAddress) {
         if (mLetterTileProvider == null) {
-            mLetterTileProvider = new LetterTileProvider(getContext());
+            mLetterTileProvider = new LetterTileProvider(getContext().getResources());
         }
 
         final ImageCanvas.Dimensions dimensions = new ImageCanvas.Dimensions(
                 mContactPhotoWidth, mContactPhotoHeight, ImageCanvas.Dimensions.SCALE_ONE);
         return mLetterTileProvider.getLetterTile(dimensions, displayName, senderAddress);
-    }
-
-    /**
-     * Frames the input bitmap in a circle.
-     */
-    private static Bitmap frameBitmapInCircle(Bitmap input) {
-        if (input == null) {
-            return null;
-        }
-
-        // Crop the image if not squared.
-        int inputWidth = input.getWidth();
-        int inputHeight = input.getHeight();
-        int targetX, targetY, targetSize;
-        if (inputWidth >= inputHeight) {
-            targetX = inputWidth / 2 - inputHeight / 2;
-            targetY = 0;
-            targetSize = inputHeight;
-        } else {
-            targetX = 0;
-            targetY = inputHeight / 2 - inputWidth / 2;
-            targetSize = inputWidth;
-        }
-
-        // Create an output bitmap and a canvas to draw on it.
-        Bitmap output = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-
-        // Create a black paint to draw the mask.
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.BLACK);
-
-        // Draw a circle.
-        canvas.drawCircle(targetSize / 2, targetSize / 2, targetSize / 2, paint);
-
-        // Replace the black parts of the mask with the input image.
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(input, targetX /* left */, targetY /* top */, paint);
-
-        return output;
     }
 
     @Override
@@ -953,6 +927,10 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
             } else {
                 ComposeActivity.forward(getContext(), getAccount(), mMessage);
             }
+        } else if (id == R.id.add_star) {
+            mMessage.star(true);
+        } else if (id == R.id.remove_star) {
+            mMessage.star(false);
         } else if (id == R.id.print_message) {
             printMessage();
         } else if (id == R.id.report_rendering_problem) {
@@ -987,6 +965,14 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
                 fetch.setVisible(mMessage.messageFlagLoaded
                         == MessageFlagLoaded.FLAG_LOADED_PARTIAL_COMPLETE);
             }
+            final boolean isStarred = mMessage.starred;
+            boolean showStar = true;
+            final Conversation conversation = mMessage.getConversation();
+            if (conversation != null) {
+                showStar = !conversation.isInTrash();
+            }
+            m.findItem(R.id.add_star).setVisible(showStar && !isStarred);
+            m.findItem(R.id.remove_star).setVisible(showStar && isStarred);
 
             final boolean reportRendering = ENABLE_REPORT_RENDERING_PROBLEM
                 && mCallbacks.supportsMessageTransforms();

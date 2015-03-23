@@ -27,13 +27,13 @@
         style="@style/RecipientComposeFieldLayout">
 
         <LinearLayout
+            android:id="@+id/cc_dropdown_anchor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/ComposeFieldContent"
             android:paddingEnd="0dp">
 
             <TextView
-                android:id="@+id/cc_label"
                 android:contentDescription="@string/cc"
                 android:text="@string/cc"
                 style="@style/ComposeHeading" />
@@ -41,7 +41,7 @@
             <com.android.ex.chips.RecipientEditTextView
                 android:id="@+id/cc"
                 android:contentDescription="@string/cc"
-                android:dropDownAnchor="@id/cc_content"
+                android:dropDownAnchor="@id/cc_dropdown_anchor"
                 style="@style/RecipientEditTextViewStyle"
                 android:layout_width="0dip"
                 android:layout_weight="1" />
@@ -57,7 +57,7 @@
 
         </LinearLayout>
 
-        <View style="@style/RecipientComposeFieldSpacer" />
+        <View style="@style/DefaultDividerStyle" />
 
     </LinearLayout>
 
@@ -68,13 +68,13 @@
         style="@style/RecipientComposeFieldLayout">
 
         <LinearLayout
+            android:id="@+id/bcc_dropdown_anchor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/ComposeFieldContent"
             android:paddingEnd="0dp">
 
             <TextView
-                android:id="@+id/bcc_label"
                 android:contentDescription="@string/bcc"
                 android:text="@string/bcc"
                 style="@style/ComposeHeading" />
@@ -82,7 +82,7 @@
             <com.android.ex.chips.RecipientEditTextView
                 android:id="@+id/bcc"
                 android:contentDescription="@string/bcc"
-                android:dropDownAnchor="@id/bcc_content"
+                android:dropDownAnchor="@id/bcc_dropdown_anchor"
                 style="@style/RecipientEditTextViewStyle"
                 android:layout_width="0dip"
                 android:layout_weight="1" />
@@ -98,7 +98,7 @@
 
         </LinearLayout>
 
-        <View style="@style/RecipientComposeFieldSpacer" />
+        <View style="@style/DefaultDividerStyle" />
 
     </LinearLayout>
 

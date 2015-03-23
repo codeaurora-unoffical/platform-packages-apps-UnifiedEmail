@@ -33,7 +33,6 @@
             android:paddingEnd="0dp">
 
             <TextView
-                android:id="@+id/to_label"
                 android:contentDescription="@string/to"
                 android:text="@string/to"
                 style="@style/ComposeHeading" />
@@ -96,8 +95,9 @@
 
         </LinearLayout>
 
-        <View style="@style/RecipientComposeFieldSpacer" />
     </LinearLayout>
+
+    <View style="@style/DefaultDividerStyle" />
 
     <!-- Cc/Bcc -->
     <com.android.mail.compose.CcBccView
