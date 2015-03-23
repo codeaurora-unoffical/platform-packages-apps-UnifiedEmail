@@ -321,7 +321,8 @@ public class MessageAttachmentBar extends FrameLayout implements OnClickListener
 
     private boolean shouldShowExtraOption1() {
         return !mHideExtraOptionOne &&
-                mActionHandler.shouldShowExtraOption1(mAttachment.getContentType());
+                mActionHandler.shouldShowExtraOption1(mAccount.getType(),
+                        mAttachment.getContentType());
     }
 
     private boolean shouldShowOverflow() {
@@ -368,6 +369,7 @@ public class MessageAttachmentBar extends FrameLayout implements OnClickListener
         if (mAttachment.canPreview()) {
             final Intent previewIntent =
                     new Intent(Intent.ACTION_VIEW, mAttachment.previewIntentUri);
+            previewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
             getContext().startActivity(previewIntent);
 
             Analytics.getInstance().sendEvent(

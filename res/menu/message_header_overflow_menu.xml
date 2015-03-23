@@ -25,6 +25,10 @@
           android:title="@string/forward" />
     <item android:id="@+id/load_more"
           android:title="@string/load_more"/>
+    <item android:id="@+id/add_star"
+          android:title="@string/add_star" />
+    <item android:id="@+id/remove_star"
+          android:title="@string/remove_star" />
     <item android:id="@+id/print_message"
           android:title="@string/print" />
     <item android:id="@+id/report_rendering_problem"
