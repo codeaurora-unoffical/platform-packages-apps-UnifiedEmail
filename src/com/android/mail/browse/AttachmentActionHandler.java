@@ -111,7 +111,9 @@ public class AttachmentActionHandler {
                         mAttachment.destination == destination)) {
             mView.viewAttachment();
         } else {
-            showDownloadingDialog();
+            if (mAttachment.state != AttachmentState.SAVED) {
+                showDownloadingDialog();
+            }
             startDownloadingAttachment(destination);
         }
     }
@@ -137,6 +139,7 @@ public class AttachmentActionHandler {
                 && destination == AttachmentDestination.EXTERNAL) {
             File savedFile = performAttachmentSave(attachment);
             if (savedFile != null) {
+                mView.viewAttachment();
                 // The attachment is saved successfully from cache.
                 return;
             }
