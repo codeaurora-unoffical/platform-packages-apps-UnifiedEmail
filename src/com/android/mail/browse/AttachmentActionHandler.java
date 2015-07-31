@@ -193,7 +193,7 @@ public class AttachmentActionHandler {
      * previously brought up (by tapping 'View') and the download has now finished.
      */
     public void updateStatus(boolean loaderResult) {
-        if (mView == null) {
+        if (mView == null || mAttachment.contentUri == null) {
             return;
         }
 
