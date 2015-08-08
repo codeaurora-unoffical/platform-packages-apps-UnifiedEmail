@@ -69,8 +69,10 @@ public class AttachmentProgressDialogFragment extends DialogFragment {
         mDialog.setTitle(R.string.fetching_attachment);
         mDialog.setMessage(mAttachment.getName());
         mDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        mDialog.setIndeterminate(true);
         mDialog.setMax(mAttachment.size);
+        mDialog.setProgress(
+                mAttachment.isDownloadFinishedOrFailed() ? 0 : mAttachment.downloadedSize);
+        mDialog.setIndeterminate(false);
         mDialog.setProgressNumberFormat(null);
 
         return mDialog;
