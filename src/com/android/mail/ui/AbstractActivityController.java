@@ -1365,9 +1365,11 @@ public abstract class AbstractActivityController implements ActivityController,
         } else if (intent != null) {
             handleIntent(intent);
         }
-        // Create the accounts loader; this loads the account switch spinner.
-        mActivity.getLoaderManager().initLoader(LOADER_ACCOUNT_CURSOR, Bundle.EMPTY,
-                mAccountCallbacks);
+        if (savedState == null || mAccount != null) {
+            // Create the accounts loader; this loads the account switch spinner.
+            mActivity.getLoaderManager().initLoader(LOADER_ACCOUNT_CURSOR, Bundle.EMPTY,
+                    mAccountCallbacks);
+        }
     }
 
     /**
