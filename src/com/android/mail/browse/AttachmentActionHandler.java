@@ -42,6 +42,7 @@ import com.android.mail.providers.UIProvider.AttachmentDestination;
 import com.android.mail.providers.UIProvider.AttachmentState;
 import com.android.mail.utils.LogTag;
 import com.android.mail.utils.LogUtils;
+import com.android.mail.utils.MimeType;
 import com.android.mail.utils.Utils;
 
 import org.apache.commons.io.IOUtils;
@@ -136,10 +137,10 @@ public class AttachmentActionHandler {
             Attachment attachment, int destination, int rendition, int additionalPriority,
             boolean delayDownload) {
         if (attachment.state == AttachmentState.SAVED
-                && destination == AttachmentDestination.EXTERNAL) {
+                && destination == AttachmentDestination.EXTERNAL
+                && !MimeType.isInstallable(attachment.getContentType())) {
             File savedFile = performAttachmentSave(attachment);
             if (savedFile != null) {
-                mView.viewAttachment();
                 // The attachment is saved successfully from cache.
                 return;
             }
