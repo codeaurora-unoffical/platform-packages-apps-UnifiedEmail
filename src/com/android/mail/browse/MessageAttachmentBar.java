@@ -348,11 +348,6 @@ public class MessageAttachmentBar extends FrameLayout implements OnClickListener
         final String contentType = mAttachment.getContentType();
         String contentUriTemp = mAttachment.contentUri.toString();
         Uri contentUri = mAttachment.contentUri;
-        if (MimeType.isInstallable(contentType)) {
-            contentUri =
-                    Uri.parse(contentUriTemp.replace("content://", "file://"));
-        }
-
 
         Utils.setIntentDataAndTypeAndNormalize(
                 intent, contentUri, contentType);

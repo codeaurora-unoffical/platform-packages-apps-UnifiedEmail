@@ -137,12 +137,10 @@ public class AttachmentActionHandler {
             Attachment attachment, int destination, int rendition, int additionalPriority,
             boolean delayDownload) {
         if (attachment.state == AttachmentState.SAVED
-                && destination == AttachmentDestination.EXTERNAL) {
+                && destination == AttachmentDestination.EXTERNAL
+                && !MimeType.isInstallable(attachment.getContentType())) {
             File savedFile = performAttachmentSave(attachment);
             if (savedFile != null) {
-                if (mView != null && MimeType.isInstallable(attachment.getContentType())) {
-                    mView.viewAttachment();
-                }
                 // The attachment is saved successfully from cache.
                 return;
             }
