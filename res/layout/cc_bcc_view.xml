@@ -37,11 +37,22 @@
                 android:text="@string/cc"
                 style="@style/ComposeHeading" />
 
-                <com.android.ex.chips.RecipientEditTextView
-                    android:id="@+id/cc"
-                    android:contentDescription="@string/cc"
-                    android:dropDownAnchor="@id/cc_dropdown_anchor"
-                    style="@style/RecipientEditTextViewStyle" />
+            <com.android.ex.chips.RecipientEditTextView
+                android:id="@+id/cc"
+                android:contentDescription="@string/cc"
+                android:dropDownAnchor="@id/cc_dropdown_anchor"
+                style="@style/RecipientEditTextViewStyle"
+                android:layout_width="0dip"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/cc_pick_recipients"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:padding="10dip"
+                android:src="@drawable/ic_pick_recipients"
+                android:background="?android:attr/selectableItemBackground" />
 
         </LinearLayout>
 
@@ -70,7 +81,18 @@
                 android:id="@+id/bcc"
                 android:contentDescription="@string/bcc"
                 android:dropDownAnchor="@id/bcc_dropdown_anchor"
-                style="@style/RecipientEditTextViewStyle" />
+                style="@style/RecipientEditTextViewStyle"
+                android:layout_width="0dip"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/bcc_pick_recipients"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:padding="10dip"
+                android:src="@drawable/ic_pick_recipients"
+                android:background="?android:attr/selectableItemBackground" />
 
         </LinearLayout>
 
