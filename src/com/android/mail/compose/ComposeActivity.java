@@ -1894,6 +1894,9 @@ public class ComposeActivity extends ActionBarActivity
     }
 
     public long addAttachments(List<Attachment> attachments, boolean dropUnloaded) {
+        if (mAttachmentsChanged) {
+            return 0;
+        }
         long size = 0;
         AttachmentFailureException error = null;
         for (Attachment a : attachments) {
