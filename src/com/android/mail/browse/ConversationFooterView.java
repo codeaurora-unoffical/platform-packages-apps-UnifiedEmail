@@ -1,5 +1,6 @@
 package com.android.mail.browse;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -7,11 +8,14 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.android.mail.R;
+import com.android.mail.browse.ConfirmDialogFragment.ConfirmForwardDialogFragment;
+import com.android.mail.browse.ConfirmDialogFragment.ForwardDialogFragment;
 import com.android.mail.browse.ConversationViewAdapter.ConversationFooterItem;
 import com.android.mail.browse.ConversationViewAdapter.MessageHeaderItem;
 import com.android.mail.compose.ComposeActivity;
 import com.android.mail.providers.Account;
 import com.android.mail.providers.Message;
+import com.android.mail.providers.UIProvider.AccountCapabilities;
 import com.android.mail.utils.LogTag;
 import com.android.mail.utils.LogUtils;
 import com.android.mail.utils.Utils;
@@ -29,6 +33,8 @@ public class ConversationFooterView extends LinearLayout implements View.OnClick
          * @param newHeight the new height in px
          */
         void onConversationFooterHeightChange(int newHeight);
+
+        FragmentManager getFragmentManager();
     }
     private static final String LOG_TAG = LogTag.getLogTag();
 
@@ -83,7 +89,23 @@ public class ConversationFooterView extends LinearLayout implements View.OnClick
         } else if (id == R.id.reply_all_button) {
             ComposeActivity.replyAll(getContext(), getAccount(), message);
         } else if (id == R.id.forward_button) {
-            ComposeActivity.forward(getContext(), getAccount(), message);
+            if (message.hasAttachments && getAccount().settings.confirmForward
+                    && (getAccount().capabilities & AccountCapabilities.SMART_FORWARD) == 0) {
+                // Enabled the confirm before forward and do not support smart forward
+                // Prompt the confirm dialog first, then forward the message according
+                // to the user's selection.
+                ConfirmForwardDialogFragment dialog = ConfirmForwardDialogFragment.newInstance(
+                        getAccount(), message);
+                dialog.displayDialog(mCallbacks.getFragmentManager());
+            } else if (getAccount().settings.confirmForward) {
+                // Enabled the confirm before forward, prompt the confirm dialog, then forward
+                // the message according to the user's selection.
+                ForwardDialogFragment dialog = ForwardDialogFragment.newInstance(
+                        getAccount(), message);
+                dialog.displayDialog(mCallbacks.getFragmentManager());
+            } else {
+                ComposeActivity.forward(getContext(), getAccount(), message);
+            }
         }
     }
 

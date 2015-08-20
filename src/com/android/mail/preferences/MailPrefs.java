@@ -110,6 +110,7 @@ public final class MailPrefs extends VersionedPrefs {
         public static final String CONFIRM_DELETE = "confirm-delete";
         public static final String CONFIRM_ARCHIVE = "confirm-archive";
         public static final String CONFIRM_SEND = "confirm-send";
+        public static final String CONFIRM_FORWARD = "confirm-forward";
 
         public static final String CONVERSATION_OVERVIEW_MODE = "conversation-overview-mode";
 
@@ -152,6 +153,7 @@ public final class MailPrefs extends VersionedPrefs {
                 .add(CONFIRM_DELETE)
                 .add(CONFIRM_ARCHIVE)
                 .add(CONFIRM_SEND)
+                .add(CONFIRM_FORWARD)
                 .add(CONVERSATION_OVERVIEW_MODE)
                 .add(SNAP_HEADER_MODE)
                 .build();
@@ -504,6 +506,15 @@ public final class MailPrefs extends VersionedPrefs {
 
     public boolean getConfirmSend() {
         return getSharedPreferences().getBoolean(PreferenceKeys.CONFIRM_SEND, false);
+    }
+
+    public void setConfirmForward(final boolean confirmForward) {
+        getEditor().putBoolean(PreferenceKeys.CONFIRM_FORWARD, confirmForward).apply();
+        notifyBackupPreferenceChanged();
+    }
+
+    public boolean getConfirmForward() {
+        return getSharedPreferences().getBoolean(PreferenceKeys.CONFIRM_FORWARD, false);
     }
 
     public void setAutoAdvanceMode(final int mode) {
