@@ -62,6 +62,7 @@ import com.android.mail.utils.Utils;
  */
 public class MessageAttachmentBar extends FrameLayout implements OnClickListener,
         OnMenuItemClickListener, AttachmentViewInterface {
+    private static final String POP3_ACCOUNT = "com.android.email.pop3";
 
     private Attachment mAttachment;
     private ImageView mIcon;
@@ -129,6 +130,9 @@ public class MessageAttachmentBar extends FrameLayout implements OnClickListener
         mAttachment = attachment;
         if (mAccount != null) {
             mActionHandler.setAccount(mAccount.getEmailAddress());
+            if (mAccount.getType() != null && mAccount.getType().equals(POP3_ACCOUNT)) {
+                mActionHandler.setShowProgress(false);
+            }
         }
         mActionHandler.setMessage(message);
         mActionHandler.setAttachment(mAttachment);

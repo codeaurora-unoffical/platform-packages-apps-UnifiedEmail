@@ -67,6 +67,7 @@ public class AttachmentActionHandler {
     private final Handler mHandler;
     private FragmentManager mFragmentManager;
     private boolean mViewOnFinish;
+    private boolean mShowProgress;
 
     private static final String LOG_TAG = LogTag.getLogTag();
 
@@ -78,6 +79,7 @@ public class AttachmentActionHandler {
         mContext = context;
         mHandler = new Handler();
         mViewOnFinish = true;
+        mShowProgress = true;
     }
 
     public void initialize(FragmentManager fragmentManager) {
@@ -98,6 +100,10 @@ public class AttachmentActionHandler {
 
     public void setViewOnFinish(boolean viewOnFinish) {
         mViewOnFinish = viewOnFinish;
+    }
+
+    public void setShowProgress(boolean showprogress) {
+        mShowProgress = showprogress;
     }
 
     public void showAttachment(int destination) {
@@ -185,7 +191,7 @@ public class AttachmentActionHandler {
 
          // Create and show the dialog.
         final DialogFragment newFragment = AttachmentProgressDialogFragment.newInstance(
-                mAttachment);
+                mAttachment, mShowProgress);
         newFragment.show(ft, PROGRESS_FRAGMENT_TAG);
     }
 

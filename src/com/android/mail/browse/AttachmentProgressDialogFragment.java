@@ -30,18 +30,23 @@ import com.google.common.base.Objects;
 
 public class AttachmentProgressDialogFragment extends DialogFragment {
     public static final String ATTACHMENT_KEY = "attachment";
+    public static final String SHOW_PROGRESS = "showProgress";
     private AttachmentCommandHandler mCommandHandler;
 
     private Attachment mAttachment;
 
     private ProgressDialog mDialog;
 
-    static AttachmentProgressDialogFragment newInstance(Attachment attachment) {
+    private boolean mShowProgress;
+
+    static AttachmentProgressDialogFragment newInstance(Attachment attachment,
+            boolean showProgress) {
         final AttachmentProgressDialogFragment f = new AttachmentProgressDialogFragment();
 
         // Supply the attachment as an argument.
         final Bundle args = new Bundle(1);
         args.putParcelable(ATTACHMENT_KEY, attachment);
+        args.putBoolean(SHOW_PROGRESS, showProgress);
         f.setArguments(args);
 
         return f;
@@ -55,6 +60,7 @@ public class AttachmentProgressDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         final Bundle args = getArguments();
         mAttachment = args.getParcelable(ATTACHMENT_KEY);
+        mShowProgress = args.getBoolean(SHOW_PROGRESS);
     }
 
     @Override
@@ -68,7 +74,9 @@ public class AttachmentProgressDialogFragment extends DialogFragment {
         mDialog = new ProgressDialog(getActivity());
         mDialog.setTitle(R.string.fetching_attachment);
         mDialog.setMessage(mAttachment.getName());
-        mDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        if (mShowProgress) {
+            mDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        }
         mDialog.setMax(mAttachment.size);
         mDialog.setProgress(
                 mAttachment.isDownloadFinishedOrFailed() ? 0 : mAttachment.downloadedSize);
