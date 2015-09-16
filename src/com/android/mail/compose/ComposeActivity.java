@@ -2382,15 +2382,15 @@ public class ComposeActivity extends ActionBarActivity
         }
         view.setAdapter(getRecipientAdapter());
         view.setRecipientEntryItemClickedListener(this);
-        if (mValidator == null) {
-            final String accountName = mAccount.getEmailAddress();
-            int offset = accountName.indexOf("@") + 1;
-            String account = accountName;
-            if (offset > 0) {
-                account = account.substring(offset);
-            }
-            mValidator = new Rfc822Validator(account);
+
+        final String accountName = mAccount.getEmailAddress();
+        int offset = accountName.indexOf("@") + 1;
+        String account = accountName;
+        if (offset > 0) {
+            account = account.substring(offset);
         }
+        mValidator = new Rfc822Validator(account);
+
         view.setValidator(mValidator);
     }
 
