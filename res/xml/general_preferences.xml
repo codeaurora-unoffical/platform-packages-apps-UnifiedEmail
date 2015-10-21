@@ -85,6 +85,11 @@
                 android:key="confirm-send"
                 android:persistent="true"
                 android:title="@string/preference_confirm_before_send_title" />
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="confirm-forward"
+                android:persistent="true"
+                android:title="@string/preference_confirm_before_forward_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

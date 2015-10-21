@@ -211,6 +211,7 @@ public class UIProvider {
             .put(AccountColumns.SettingsColumns.CONFIRM_DELETE, Integer.class)
             .put(AccountColumns.SettingsColumns.CONFIRM_ARCHIVE, Integer.class)
             .put(AccountColumns.SettingsColumns.CONFIRM_SEND, Integer.class)
+            .put(AccountColumns.SettingsColumns.CONFIRM_FORWARD, Integer.class)
             .put(AccountColumns.SettingsColumns.DEFAULT_INBOX, String.class)
             .put(AccountColumns.SettingsColumns.DEFAULT_INBOX_NAME, String.class)
             .put(AccountColumns.SettingsColumns.FORCE_REPLY_FROM_DEFAULT, Integer.class)
@@ -361,6 +362,11 @@ public class UIProvider {
          * Whether the account supports nested folders
          */
         public static final int NESTED_FOLDERS = 0x800000;
+        /**
+         * Whether the account supports smart forward
+         */
+        public static final int SMART_FORWARD = 0x1000000;
+
         /**
          * Whether the client is permitted to sanitize HTML for this account.
          */
@@ -620,6 +626,14 @@ public class UIProvider {
              * be shown when a send action is performed.
              */
             public static final String CONFIRM_SEND = "confirm_send";
+
+            /**
+             * Integer column containing the user's specified confirm forward preference value.
+             * A non zero value indicates that the user has indicated that a confirmation should
+             * be shown when a forward action is performed.
+             */
+            public static final String CONFIRM_FORWARD = "confirm_forward";
+
             /**
              * String containing the URI for the default inbox for this account.
              */
@@ -1625,7 +1639,9 @@ public class UIProvider {
         MessageColumns.VIA_DOMAIN,
         MessageColumns.SENDING_STATE,
         MessageColumns.CLIPPED,
-        MessageColumns.PERMALINK
+        MessageColumns.PERMALINK,
+        MessageColumns.MESSAGE_FLAG_LOADED,
+        MessageColumns.MESSAGE_LOAD_MORE_URI
     };
 
     /** Separates attachment info parts in strings in a message. */
@@ -1674,6 +1690,8 @@ public class UIProvider {
     public static final int MESSAGE_SENDING_STATE_COLUMN = 35;
     public static final int MESSAGE_CLIPPED_COLUMN = 36;
     public static final int MESSAGE_PERMALINK_COLUMN = 37;
+    public static final int MESSAGE_FLAG_LOADED_COLUMN = 38;
+    public static final int MESSAGE_LOAD_MORE_URI_COLUMN = 39;
 
     public static final class CursorStatus {
         // The cursor is actively loading more data
@@ -1728,6 +1746,19 @@ public class UIProvider {
         public static final int REPLIED =           1 << 2;
         public static final int FORWARDED =         1 << 3;
         public static final int CALENDAR_INVITE =   1 << 4;
+    }
+
+    /**
+     * These values are also defined in the EmailContent.
+     */
+    public static final class MessageFlagLoaded {
+        public static final int FLAG_LOADED_UNLOADED = 0;
+        public static final int FLAG_LOADED_COMPLETE = 1;
+        public static final int FLAG_LOADED_PARTIAL = 2;
+        public static final int FLAG_LOADED_PARTIAL_COMPLETE = 3;
+        public static final int FLAG_LOADED_PARTIAL_FETCHING = 4;
+        public static final int FLAG_LOADED_DELETED = 5;
+        public static final int FLAG_LOADED_UNKNOWN = 6;
     }
 
     public static final class MessageColumns {
@@ -1903,6 +1934,17 @@ public class UIProvider {
          * for which this message belongs or null if one does not exist.
          */
         public static final String PERMALINK = "permalink";
+
+        /**
+         * This integer column indicates the state of the message loaded
+         * and it defined in {@link MessageFlagLoaded}
+         */
+        public static final String MESSAGE_FLAG_LOADED = "messageFlagLoaded";
+
+        /**
+         * String with the content provider Uri used to request fetch entire content.
+         */
+        public static final String MESSAGE_LOAD_MORE_URI = "messageLoadMoreUri";
 
         private MessageColumns() {}
     }
