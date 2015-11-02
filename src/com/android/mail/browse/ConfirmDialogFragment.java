@@ -25,6 +25,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.android.mail.R;
+import com.android.mail.compose.ComposeActivity;
+import com.android.mail.providers.Account;
+import com.android.mail.providers.Message;
 import com.android.mail.ui.ControllableActivity;
 import com.android.mail.ui.ConversationUpdater;
 
@@ -95,5 +98,75 @@ public class ConfirmDialogFragment extends DialogFragment {
      */
     public final void displayDialog (FragmentManager manager) {
         show(manager, DIALOG_TAG);
+    }
+
+    public static class ConfirmForwardDialogFragment extends ConfirmDialogFragment {
+        private static final String ACCOUNT = "account";
+        private static final String MESSAGE = "source-message";
+
+        public static ConfirmForwardDialogFragment newInstance(Account account, Message message) {
+            final ConfirmForwardDialogFragment f = new ConfirmForwardDialogFragment();
+            final Bundle args = new Bundle();
+            args.putParcelable(ACCOUNT, account);
+            args.putParcelable(MESSAGE, message);
+            f.setArguments(args);
+            return f;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedState) {
+            final Account account = getArguments().getParcelable(ACCOUNT);
+            final Message message = getArguments().getParcelable(MESSAGE);
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.confirm_forward_message)
+                   .setPositiveButton(R.string.confirm_forward_normal,
+                           new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialog, int which) {
+                           ComposeActivity.forward(getActivity(), account, message);
+                       }
+                   })
+                   .setNeutralButton(R.string.confirm_forward_drop_unloaded,
+                           new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialog, int which) {
+                           ComposeActivity.forwardDropUnloadedAtts(getActivity(), account, message);
+                       }
+                   });
+            return builder.create();
+        }
+    }
+
+    public static class ForwardDialogFragment extends ConfirmDialogFragment {
+        private static final String ACCOUNT = "account";
+        private static final String MESSAGE = "source-message";
+
+        public static ForwardDialogFragment newInstance(Account account, Message message) {
+            final ForwardDialogFragment f = new ForwardDialogFragment();
+            final Bundle args = new Bundle();
+            args.putParcelable(ACCOUNT, account);
+            args.putParcelable(MESSAGE, message);
+            f.setArguments(args);
+            return f;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedState) {
+            final Account account = getArguments().getParcelable(ACCOUNT);
+            final Message message = getArguments().getParcelable(MESSAGE);
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.forward_dialog_message)
+                   .setPositiveButton(android.R.string.ok,
+                           new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialog, int which) {
+                           ComposeActivity.forward(getActivity(), account, message);
+                       }
+                   })
+                   .setNegativeButton(android.R.string.cancel, null);
+            return builder.create();
+        }
     }
 }

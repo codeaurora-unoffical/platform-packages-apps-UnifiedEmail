@@ -48,6 +48,8 @@ import com.android.mail.ContactInfo;
 import com.android.mail.ContactInfoSource;
 import com.android.mail.R;
 import com.android.mail.analytics.Analytics;
+import com.android.mail.browse.ConfirmDialogFragment.ConfirmForwardDialogFragment;
+import com.android.mail.browse.ConfirmDialogFragment.ForwardDialogFragment;
 import com.android.mail.browse.ConversationViewAdapter.MessageHeaderItem;
 import com.android.mail.compose.ComposeActivity;
 import com.android.mail.perf.Timer;
@@ -58,6 +60,8 @@ import com.android.mail.providers.Conversation;
 import com.android.mail.providers.Message;
 import com.android.mail.providers.Settings;
 import com.android.mail.providers.UIProvider;
+import com.android.mail.providers.UIProvider.AccountCapabilities;
+import com.android.mail.providers.UIProvider.MessageFlagLoaded;
 import com.android.mail.text.EmailAddressSpan;
 import com.android.mail.ui.AbstractConversationViewFragment;
 import com.android.mail.ui.ImageCanvas;
@@ -906,7 +910,23 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
         } else if (id == R.id.reply_all) {
             ComposeActivity.replyAll(getContext(), getAccount(), mMessage);
         } else if (id == R.id.forward) {
-            ComposeActivity.forward(getContext(), getAccount(), mMessage);
+            if (mMessage.hasAttachments && getAccount().settings.confirmForward
+                    && (getAccount().capabilities & AccountCapabilities.SMART_FORWARD) == 0) {
+                // Enabled the confirm before forward and do not support smart forward
+                // Prompt the confirm dialog first, then forward the message according
+                // to the user's selection.
+                ConfirmForwardDialogFragment dialog = ConfirmForwardDialogFragment.newInstance(
+                        getAccount(), mMessage);
+                dialog.displayDialog(mCallbacks.getFragmentManager());
+            } else if (getAccount().settings.confirmForward) {
+                // Enabled the confirm before forward, prompt the confirm dialog, then forward
+                // the message according to the user's selection.
+                ForwardDialogFragment dialog = ForwardDialogFragment.newInstance(
+                        getAccount(), mMessage);
+                dialog.displayDialog(mCallbacks.getFragmentManager());
+            } else {
+                ComposeActivity.forward(getContext(), getAccount(), mMessage);
+            }
         } else if (id == R.id.add_star) {
             mMessage.star(true);
         } else if (id == R.id.remove_star) {
@@ -923,6 +943,8 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
                     text + "\n\n" + mCallbacks.getMessageTransforms(mMessage));
         } else if (id == R.id.edit_draft) {
             ComposeActivity.editDraft(getContext(), getAccount(), mMessage);
+        } else if (id == R.id.load_more) {
+            mMessage.loadMore();
         } else if (id == R.id.overflow) {
             if (mPopup == null) {
                 mPopup = new PopupMenu(getContext(), v);
@@ -937,6 +959,12 @@ public class MessageHeaderView extends SnapHeader implements OnClickListener,
             m.findItem(R.id.reply_all).setVisible(!defaultReplyAll);
             m.findItem(R.id.print_message).setVisible(Utils.isRunningKitkatOrLater());
 
+            // Update the load more menu visible value.
+            MenuItem fetch = m.findItem(R.id.load_more);
+            if (fetch != null) {
+                fetch.setVisible(mMessage.messageFlagLoaded
+                        == MessageFlagLoaded.FLAG_LOADED_PARTIAL_COMPLETE);
+            }
             final boolean isStarred = mMessage.starred;
             boolean showStar = true;
             final Conversation conversation = mMessage.getConversation();

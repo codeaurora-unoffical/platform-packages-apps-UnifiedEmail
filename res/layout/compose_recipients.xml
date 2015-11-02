@@ -50,13 +50,34 @@
                         android:id="@+id/to"
                         android:contentDescription="@string/to"
                         android:dropDownAnchor="@id/to_content"
-                        style="@style/ToRecipientEditTextViewStyle" />
+                        style="@style/ToRecipientEditTextViewStyle"
+                        android:layout_width="0dip"
+                        android:layout_weight="1" />
 
-                    <ImageView
-                        android:id="@+id/add_cc_bcc"
-                        android:src="@drawable/ic_expand_more_24dp"
-                        android:contentDescription="@string/add_cc_label"
-                        style="@style/ComposeFieldButton" />
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <ImageButton
+                            android:id="@+id/to_pick_recipients"
+                            android:layout_width="@dimen/compose_header_min_height"
+                            android:layout_height="@dimen/compose_header_min_height"
+                            android:layout_alignParentTop="true"
+                            android:padding="10dip"
+                            android:src="@drawable/ic_pick_recipients"
+                            android:background="?android:attr/selectableItemBackground" />
+
+                        <ImageView
+                            android:id="@+id/add_cc_bcc"
+                            android:layout_toEndOf="@+id/to_pick_recipients"
+                            android:src="@drawable/ic_expand_more_24dp"
+                            android:contentDescription="@string/add_cc_label"
+                            android:scaleType="center"
+                            style="@style/ComposeFieldButton"
+                            android:padding="10dip"
+                            android:layout_marginStart="0dip" />
+
+                    </RelativeLayout>
 
                 </LinearLayout>
 

@@ -477,6 +477,15 @@
     <string name="manage_accounts_menu_item" msgid="4734660452395086786">"管理帳戶"</string>
     <string name="general_preferences_title" msgid="4212138728220418162">"一般設定"</string>
     <string name="activity_preferences" msgid="8966077432517613292">"設定"</string>
+
+    <!--  Settings screen, confirm on action option title [CHAR LIMIT=150] -->
+    <string name="preference_confirm_before_forward_title">轉寄前須確認</string>
+    <!-- Confirm forward message -->
+    <string name="confirm_forward_message">"若該訊息含有未下載的附件，如何轉寄該訊息？"</string>
+    <string name="confirm_forward_normal">"下載完成后發送"</string>
+    <string name="confirm_forward_drop_unloaded">"捨弃未完成的"</string>
+    <!-- Forward dialog message -->
+    <string name="forward_dialog_message">"您是否希望轉寄該郵件？"</string>
     <string name="overflow_description" msgid="7886090597023240426">"更多選項"</string>
     <string name="security_hold_required_text" msgid="6619955920101834286">"<xliff:g id="EMAIL_ADDRESS">%1$s</xliff:g> 需要進行安全性更新"</string>
     <string name="update_security_text" msgid="3527335757205741077">"立即更新"</string>
