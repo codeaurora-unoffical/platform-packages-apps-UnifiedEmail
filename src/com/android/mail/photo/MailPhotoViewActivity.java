@@ -90,7 +90,7 @@ public class MailPhotoViewActivity extends PhotoViewActivity implements
     private static Intent wrapIntent(
             final Intent intent, final String account, final String accountType,
             final ConversationMessage msg) {
-        intent.putExtra(EXTRA_MESSAGE, msg);
+        //intent.putExtra(EXTRA_MESSAGE, msg);
         intent.putExtra(EXTRA_ACCOUNT, account);
         intent.putExtra(EXTRA_ACCOUNT_TYPE, accountType);
         intent.putExtra(EXTRA_HIDE_EXTRA_OPTION_ONE, msg.getConversation() == null);
