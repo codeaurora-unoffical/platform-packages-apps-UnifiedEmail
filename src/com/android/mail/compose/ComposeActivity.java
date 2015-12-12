@@ -337,6 +337,7 @@ public class ComposeActivity extends ActionBarActivity
     private MenuItem mSave;
     @VisibleForTesting
     protected Message mRefMessage;
+    protected static Message mMessageTransfer;
     private long mDraftId = UIProvider.INVALID_MESSAGE_ID;
     private Message mDraft;
     private ReplyFromAccount mDraftAccount;
@@ -501,11 +502,9 @@ public class ComposeActivity extends ActionBarActivity
         intent.putExtra(EXTRA_FROM_EMAIL_TASK, true);
         intent.putExtra(EXTRA_ACTION, action);
         intent.putExtra(Utils.EXTRA_ACCOUNT, account);
-        if (action == EDIT_DRAFT) {
-            intent.putExtra(ORIGINAL_DRAFT_MESSAGE, message);
-        } else {
-            intent.putExtra(EXTRA_IN_REFERENCE_TO_MESSAGE, message);
-        }
+        //use a static field to transfer the message ,because it might
+        //be too large for Intent to do so.
+        mMessageTransfer = message;
         if (toAddress != null) {
             intent.putExtra(EXTRA_TO, toAddress);
         }
@@ -594,10 +593,21 @@ public class ComposeActivity extends ActionBarActivity
         } else {
             account = obtainAccount(intent);
             action = intent.getIntExtra(EXTRA_ACTION, COMPOSE);
-            // Initialize the message from the message in the intent
-            message = intent.getParcelableExtra(ORIGINAL_DRAFT_MESSAGE);
+            // Initialize the message from static field or intent
+            if(mMessageTransfer != null){
+                if(action == EDIT_DRAFT){
+                    message = mMessageTransfer;
+                }else{
+                    mRefMessage = mMessageTransfer;
+                    message = null;
+                }
+                mMessageTransfer = null;
+            }else{
+                message = intent.getParcelableExtra(ORIGINAL_DRAFT_MESSAGE);
+                mRefMessage = intent.getParcelableExtra(EXTRA_IN_REFERENCE_TO_MESSAGE);
+            }
+
             previews = intent.getParcelableArrayListExtra(EXTRA_ATTACHMENT_PREVIEWS);
-            mRefMessage = intent.getParcelableExtra(EXTRA_IN_REFERENCE_TO_MESSAGE);
             mRefMessageUri = intent.getParcelableExtra(EXTRA_IN_REFERENCE_TO_MESSAGE_URI);
             quotedText = null;
 
