@@ -55,7 +55,8 @@ public class MailPhotoViewActivity extends PhotoViewActivity implements
                 Intents.newPhotoViewIntentBuilder(context,
                         context.getString(R.string.photo_view_activity));
         builder
-                .setPhotosUri(msg.attachmentListUri.toString())
+                .setPhotosUri(msg.attachmentListUri != null ?
+                        msg.attachmentListUri.toString() : "")
                 .setProjection(UIProvider.ATTACHMENT_PROJECTION)
                 .setPhotoIndex(photoIndex);
 
