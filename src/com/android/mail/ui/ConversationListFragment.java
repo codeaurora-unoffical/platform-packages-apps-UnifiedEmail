@@ -72,7 +72,9 @@ import com.android.mail.utils.ViewUtils;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.view.View.OnKeyListener;
 
@@ -99,6 +101,18 @@ public final class ConversationListFragment extends Fragment implements
     private static int LOADING_DELAY_MS;
     // Minimum amount of time to keep the loading view displayed.
     private static int MINIMUM_LOADING_DURATION;
+
+    private static final String POP3TYPE = "com.android.email.pop3";
+
+    private static final String FOLDER_TYPE_OTHER = "other:null";
+
+    private static final String FOLDER_TYPE_OUTBOX = "outbox";
+
+    private static final String FOLDER_TYPE_SENT = "sent";
+
+    private static final String FOLDER_TYPE_DRAFT = "draft";
+
+    private static final String FOLDER_TYPE_TRASH = "trash";
 
     /**
      * Frequency of update of timestamps. Initialized in
@@ -127,6 +141,12 @@ public final class ConversationListFragment extends Fragment implements
      * Current folder being viewed.
      */
     private Folder mFolder;
+
+    private Map<String,Integer> mPop3DrawerMap = new HashMap<>();
+
+    private String mFolderTypeDescription;
+
+    private String mAccountType;
 
     /**
      * A simple method to update the timestamps of conversations periodically.
@@ -333,6 +353,8 @@ public final class ConversationListFragment extends Fragment implements
         // Since we now have a controllable activity, load the account from it,
         // and register for
         // future account changes.
+        mAccountType = mActivity.getAccountController().getAccount().getType();
+        mFolderTypeDescription = mActivity.getFolderController().getFolder().getTypeDescription();
         mAccount = mAccountObserver.initialize(mActivity.getAccountController());
         mCallbacks = mActivity.getListHandler();
         mErrorListener = mActivity.getErrorListener();
@@ -458,6 +480,11 @@ public final class ConversationListFragment extends Fragment implements
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
 
+        mPop3DrawerMap.put(FOLDER_TYPE_OTHER,0);
+        mPop3DrawerMap.put(FOLDER_TYPE_OUTBOX,1);
+        mPop3DrawerMap.put(FOLDER_TYPE_SENT,2);
+        mPop3DrawerMap.put(FOLDER_TYPE_DRAFT,3);
+        mPop3DrawerMap.put(FOLDER_TYPE_TRASH,4);
         // Initialize fragment constants from resources
         final Resources res = getResources();
         TIMESTAMP_UPDATE_INTERVAL = res.getInteger(R.integer.timestamp_update_interval);
@@ -997,7 +1024,9 @@ public final class ConversationListFragment extends Fragment implements
             // actually local, it's disorienting to see this appear on every folder transition.
             // If they aren't, then it will likely take more than 200 milliseconds to load, and
             // then we'll see the loading view.
-            if (!mLoadingViewPending) {
+            boolean notShow  = (mAccountType.equals(POP3TYPE) &&
+                    (mPop3DrawerMap.get(mFolderTypeDescription) != null));
+            if (!mLoadingViewPending && !notShow ) {
                 mHandler.postDelayed(mLoadingViewRunnable, LOADING_DELAY_MS);
                 mLoadingViewPending = true;
             }
@@ -1023,6 +1052,10 @@ public final class ConversationListFragment extends Fragment implements
 
         // Blow away conversation items cache.
         ConversationItemViewModel.onFolderUpdated(mFolder);
+        if(mAccountType.equals(POP3TYPE)
+                && (mPop3DrawerMap.get(mFolderTypeDescription) != null)){
+            hideLoadingViewAndShowContents();
+        }
     }
 
     /**
@@ -1039,7 +1072,11 @@ public final class ConversationListFragment extends Fragment implements
 
     private void hideLoadingViewAndShowContents() {
         final ConversationCursor cursor = getConversationListCursor();
-        final boolean showFooter = mFooterView.updateStatus(cursor);
+        boolean isPop3ShowFooter =true;
+        if(mAccountType.equals(POP3TYPE) && (mPop3DrawerMap.get(mFolderTypeDescription) != null)){
+            isPop3ShowFooter =false;
+        }
+        final boolean showFooter = mFooterView.updateStatus(isPop3ShowFooter ? cursor : null);
         // Update the sync status bar with sync results if needed
         checkSyncStatus();
         mListAdapter.setFooterVisibility(showFooter);
@@ -1187,7 +1224,11 @@ public final class ConversationListFragment extends Fragment implements
      * should only be called if user manually requested a sync, and not for background syncs.
      */
     protected void showSyncStatusBar() {
-        mSwipeRefreshWidget.setRefreshing(true);
+        if (mAccountType.equals(POP3TYPE) && mPop3DrawerMap.get(mFolderTypeDescription) != null) {
+            mSwipeRefreshWidget.setRefreshing(false);
+        } else {
+            mSwipeRefreshWidget.setRefreshing(true);
+        }
     }
 
     /**
