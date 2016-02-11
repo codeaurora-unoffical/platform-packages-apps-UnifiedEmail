@@ -73,6 +73,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -807,6 +808,16 @@ public class ComposeActivity extends ActionBarActivity
                         false /* orientationChanged */, true /* autoSend */);
             }
         };
+    }
+
+    private void exitSoftBoard() {
+        InputMethodManager imm = (InputMethodManager) getApplicationContext()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        if (imm != null && imm.isActive()) {
+            imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     private void checkValidAccounts() {
@@ -3508,6 +3519,7 @@ public class ComposeActivity extends ActionBarActivity
         // but we still need to save the draft to the cursor because this is how we restore
         // the attachments when the configuration change completes.
         if (showToast && (getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
+            exitSoftBoard();
             Toast.makeText(this, save ? R.string.message_saved : R.string.sending_message,
                     Toast.LENGTH_LONG).show();
         }
