@@ -144,7 +144,7 @@ public final class ConversationListFragment extends Fragment implements
 
     private Map<String,Integer> mPop3DrawerMap = new HashMap<>();
 
-    private String mFolderTypeDescription;
+    private String mFolderTypeDescription = null;
 
     private String mAccountType;
 
@@ -354,7 +354,12 @@ public final class ConversationListFragment extends Fragment implements
         // and register for
         // future account changes.
         mAccountType = mActivity.getAccountController().getAccount().getType();
-        mFolderTypeDescription = mActivity.getFolderController().getFolder().getTypeDescription();
+        //MoneyTest NullPointException be avoided
+        if (mActivity.getFolderController().getFolder() != null) {
+            mFolderTypeDescription = mActivity.getFolderController()
+                    .getFolder().getTypeDescription();
+        }
+
         mAccount = mAccountObserver.initialize(mActivity.getAccountController());
         mCallbacks = mActivity.getListHandler();
         mErrorListener = mActivity.getErrorListener();
