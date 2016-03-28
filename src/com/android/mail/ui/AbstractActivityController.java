@@ -2509,6 +2509,10 @@ public abstract class AbstractActivityController implements ActivityController,
                 final Folder folder =
                         Folder.fromString(intent.getStringExtra(Utils.EXTRA_FOLDER));
                 folderUri = folder.folderUri.fullUri;
+            } else if (Utils.isEmailShortCut(intent.getData())) {
+                final String[] info = Utils.AnalysisIntentData(intent.getData());
+                folderUri = Uri.parse(info[0]);
+                setAccount(Account.newInstance(info[1]));
             } else {
                 final Bundle extras = intent.getExtras();
                 LogUtils.d(LOG_TAG, "Couldn't find a folder URI in the extras: %s",
