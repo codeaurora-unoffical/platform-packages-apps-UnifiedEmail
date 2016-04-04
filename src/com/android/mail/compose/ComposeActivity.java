@@ -36,6 +36,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Rect;
@@ -3562,11 +3564,20 @@ public class ComposeActivity extends ActionBarActivity
         // Start the activity to pick the recipient.
         Intent intent = new Intent(ACTION_MULTI_PICK_EMAIL);
         intent.setType(Contacts.CONTENT_TYPE);
-        startActivityForResult(intent, requestCode);
-
+        if (isIntentAvailable(ComposeActivity.this, intent)) {
+            startActivityForResult(intent, requestCode);
+        }
         // Set the focus to body view.
         // And it will make the recipient view to parse the address.
         focusBody();
+    }
+
+    //avoid MonkeyTest ActivityNotFoundException
+    private boolean isIntentAvailable(Context context, Intent intent) {
+        final PackageManager packageManager = context.getPackageManager();
+        List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
+                PackageManager.GET_ACTIVITIES);
+        return list.size() > 0;
     }
 
     private void showCcBccViews() {

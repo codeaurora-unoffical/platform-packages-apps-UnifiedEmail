@@ -122,6 +122,8 @@ public class Utils {
     private static final String APP_VERSION_QUERY_PARAMETER = "appVersion";
     private static final String FOLDER_URI_QUERY_PARAMETER = "folderUri";
 
+    private final static String SHORT_CUT_FLAG = "|email_shortcut";
+
     private static final String LOG_TAG = LogTag.getLogTag();
 
     public static final boolean ENABLE_CONV_LOAD_TIMER = false;
@@ -500,10 +502,30 @@ public class Utils {
         final Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK
                 | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
-        intent.setDataAndType(appendVersionQueryParameter(context, folderUri), account.mimeType);
+        intent.setDataAndType(
+                addIntentDataFlag(
+                        appendVersionQueryParameter(context, folderUri),
+                        account.serialize()), account.mimeType);
         intent.putExtra(Utils.EXTRA_ACCOUNT, account.serialize());
         intent.putExtra(Utils.EXTRA_FOLDER_URI, folderUri);
         return intent;
+    }
+
+    private static Uri addIntentDataFlag(Uri uri, String account) {
+        return Uri.parse(uri.toString() + "|" + account + SHORT_CUT_FLAG);
+    }
+
+    public static boolean isEmailShortCut(Uri uri) {
+        if (uri.toString().endsWith(SHORT_CUT_FLAG)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static String[] AnalysisIntentData(Uri uri) {
+        String uriString = uri.toString();
+        String[] info = uriString.split("\\|");
+        return info;
     }
 
     /**
