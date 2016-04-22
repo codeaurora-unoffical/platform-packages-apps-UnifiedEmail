@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.PatternMatcher;
 import android.provider.BaseColumns;
 import android.text.Html;
 import android.text.SpannableString;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -65,6 +67,9 @@ public class Message implements Parcelable, HtmlMessage {
     // regex that matches content id surrounded by "<>" optionally.
     private static final Pattern REMOVE_OPTIONAL_BRACKETS = Pattern.compile("^<?([^>]+)>?$");
 
+
+    private static final Pattern JUDGE_URL_PATTERN = Pattern
+            .compile("(http(s)?://)?([\\w-]+\\.)+([\\w-]+\\.)+([\\w-./?%&#=]*)?");
     /**
      * @see BaseColumns#_ID
      */
@@ -430,6 +435,9 @@ public class Message implements Parcelable, HtmlMessage {
             messageFlagLoaded = cursor.getInt(UIProvider.MESSAGE_FLAG_LOADED_COLUMN);
             loadMoreUri = Utils.getValidUri(
                     cursor.getString(UIProvider.MESSAGE_LOAD_MORE_URI_COLUMN));
+            if (bodyHtml != null) {
+                isIncludeUrl();
+            }
         }
     }
 
@@ -746,4 +754,26 @@ public class Message implements Parcelable, HtmlMessage {
     public boolean isDraft() {
         return draftType != UIProvider.DraftType.NOT_A_DRAFT;
     }
+
+    private void isIncludeUrl() {
+        Matcher matcher = JUDGE_URL_PATTERN.matcher(bodyHtml);
+        StringBuffer result = new StringBuffer();
+        while (matcher.find()) {
+            String urlStr = matcher.group();
+            if (!urlStr.contains("://")) {
+                urlStr = "https://" + urlStr;
+            }
+            StringBuffer replace = new StringBuffer();
+            replace.append("<a href=\"").append(urlStr);
+            isAddUrl(replace, matcher.group());
+        }
+    }
+
+    private void isAddUrl(StringBuffer href, String matcher) {
+        if (!bodyHtml.contains(href.toString())) {
+            href.append("\" target=\"_blank\">" + matcher + "</a>");
+            bodyHtml = bodyHtml.replace(matcher, href.toString());
+        }
+    }
+
 }
