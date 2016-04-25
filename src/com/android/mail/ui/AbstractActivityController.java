@@ -1844,6 +1844,7 @@ public abstract class AbstractActivityController implements ActivityController,
                 }
                 ops.add(ContentProviderOperation.newUpdate(messageUri)
                         .withValue(UIProvider.MessageColumns.READ, 0)
+                        .withValue(UIProvider.MessageColumns.SEEN, 0)
                         .build());
                 LogUtils.d(LOG_TAG, ". . Adding op: read=0, uri=%s", messageUri);
             }
