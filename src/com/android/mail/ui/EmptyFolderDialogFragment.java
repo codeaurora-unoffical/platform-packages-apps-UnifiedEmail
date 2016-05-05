@@ -99,7 +99,12 @@ public class EmptyFolderDialogFragment extends DialogFragment {
                             final EmptyFolderDialogFragmentListener listener =
                                     mListener.get();
                             if (listener != null) {
-                                listener.onFolderEmptied();
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.onFolderEmptied();
+                                    }
+                                }).start();
                             }
                         }
                     }
