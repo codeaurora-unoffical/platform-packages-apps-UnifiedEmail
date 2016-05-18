@@ -231,10 +231,20 @@ public final class OnePaneController extends AbstractActivityController {
     protected void showConversationList(ConversationListContext listContext) {
         enableCabMode();
         mConversationListVisible = true;
-        if (ConversationListContext.isSearchResult(listContext)) {
-            mViewMode.enterSearchResultsListMode();
+        if (Utils.enableExecuteLocalSearch(mContext)) {
+            if (ConversationListContext.isLocalSearchResult(listContext)) {
+                mViewMode.enterConversationListMode();
+                mSearchViewController.setQueryText(listContext.getSearchQuery());
+                mSearchViewController
+                        .showSearchActionBar(
+                        MaterialSearchViewController.SEARCH_VIEW_STATE_ONLY_ACTIONBAR);
+            }
         } else {
-            mViewMode.enterConversationListMode();
+            if (ConversationListContext.isSearchResult(listContext)) {
+                mViewMode.enterSearchResultsListMode();
+            } else {
+                mViewMode.enterConversationListMode();
+            }
         }
         final int transition = mConversationListNeverShown
                 ? FragmentTransaction.TRANSIT_FRAGMENT_FADE
@@ -281,12 +291,20 @@ public final class OnePaneController extends AbstractActivityController {
             return;
         }
         disableCabMode();
-        if (ConversationListContext.isSearchResult(mConvListContext)) {
-            mViewMode.enterSearchResultsConversationMode();
-        } else {
+        if (Utils.enableExecuteLocalSearch(mContext)) {
+            if (ConversationListContext.isLocalSearchResult(mConvListContext)) {
+                mSearchViewController
+                        .showSearchActionBar(
+                        MaterialSearchViewController.SEARCH_VIEW_STATE_GONE);
+            }
             mViewMode.enterConversationMode();
+        } else {
+            if (ConversationListContext.isSearchResult(mConvListContext)) {
+                mViewMode.enterSearchResultsConversationMode();
+            } else {
+                mViewMode.enterConversationMode();
+            }
         }
-
         mPagerController.show(mAccount, mFolder, conversation, true /* changeVisibility */,
                 shouldAnimate? mPagerAnimationListener : null);
         onConversationVisibilityChanged(true);

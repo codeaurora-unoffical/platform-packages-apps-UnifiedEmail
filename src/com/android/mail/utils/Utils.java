@@ -51,6 +51,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.service.SearchParams;
 import com.android.mail.R;
 import com.android.mail.browse.ConversationCursor;
 import com.android.mail.compose.ComposeActivity;
@@ -1143,5 +1144,28 @@ public class Utils {
                 ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
         final NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return (networkInfo != null) && networkInfo.isConnected();
+    }
+
+    private final static String UI_MESSAGES = "uimessages";
+    private final static String UI_LOCAL_SEARCH = "uilocalsearch";
+
+    public static Uri buildLocalSearchUri(Folder folder, String queryFilter, String queryFactor) {
+        Uri result = null;
+        if (TextUtils.isEmpty(queryFilter)
+                || TextUtils.isEmpty(queryFactor)) {
+            return folder.conversationListUri;
+        } else {
+            result = Uri.parse(folder.conversationListUri.toString().replace(UI_MESSAGES,
+                    UI_LOCAL_SEARCH));
+        }
+        return result
+                .buildUpon()
+                .appendQueryParameter(SearchParams.BUNDLE_QUERY_FILTER, queryFilter)
+                .appendQueryParameter(SearchParams.BUNDLE_QUERY_FACTOR, queryFactor)
+                .build();
+    }
+
+    public static boolean enableExecuteLocalSearch(Context context) {
+        return context.getResources().getBoolean(R.bool.enable_execute_local_search);
     }
 }
