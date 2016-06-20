@@ -39,6 +39,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -197,6 +198,8 @@ public class ComposeActivity extends ActionBarActivity
     protected static final String EXTRA_TO = "to";
     private static final String EXTRA_CC = "cc";
     private static final String EXTRA_BCC = "bcc";
+    private static final String PRE_DRAFT_URI = "pre_draft";
+    private static final String KEY_DRAFT_URI = "draft_uri";
 
     public static final String ANALYTICS_CATEGORY_ERRORS = "compose_errors";
 
@@ -3426,6 +3429,7 @@ public class ComposeActivity extends ActionBarActivity
                 synchronized (mDraftLock) {
                     mDraftId = message.id;
                     mDraft = message;
+                    saveDraftUriToTempFile(mDraft.uri);
                     if (sRequestMessageIdMap != null) {
                         sRequestMessageIdMap.put(sendOrSaveMessage.mRequestId, mDraftId);
                     }
@@ -3515,6 +3519,23 @@ public class ComposeActivity extends ActionBarActivity
         if (!save) {
             finish();
         }
+    }
+
+    private void saveDraftUriToTempFile(Uri mUri){
+        SharedPreferences mSp = getSharedPreferencesInstance();
+        SharedPreferences.Editor editor = mSp.edit();
+        editor.putString(KEY_DRAFT_URI, mUri.toString());
+        editor.commit();
+    }
+
+    private Uri getDraftUriFromTempFile(){
+        SharedPreferences mSp = getSharedPreferencesInstance();
+        String mUri = mSp.getString(KEY_DRAFT_URI,"");
+        return Uri.parse(mUri);
+    }
+
+    private SharedPreferences getSharedPreferencesInstance(){
+        return getSharedPreferences(PRE_DRAFT_URI, Activity.MODE_PRIVATE);
     }
 
     /**
@@ -3845,6 +3866,9 @@ public class ComposeActivity extends ActionBarActivity
                 if (!mAccount.expungeMessageUri.equals(Uri.EMPTY)) {
                     getContentResolver().update(mAccount.expungeMessageUri, values, null, null);
                 } else {
+                    if(mDraft.uri == null){
+                        mDraft.uri = getDraftUriFromTempFile();
+                    }
                     getContentResolver().delete(mDraft.uri, null, null);
                 }
                 // This is not strictly necessary (since we should not try to
