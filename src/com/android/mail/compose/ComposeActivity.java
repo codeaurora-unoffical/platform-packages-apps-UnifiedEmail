@@ -39,6 +39,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -197,6 +198,10 @@ public class ComposeActivity extends ActionBarActivity
     protected static final String EXTRA_TO = "to";
     private static final String EXTRA_CC = "cc";
     private static final String EXTRA_BCC = "bcc";
+    private static final String PRE_DRAFT_URI = "pre_draft";
+    private static final String KEY_DRAFT_URI = "draft_uri";
+
+    public static final String ANALYTICS_CATEGORY_ERRORS = "compose_errors";
 
     /**
      * An optional extra containing a {@link ContentValues} of values to be added to
@@ -290,9 +295,8 @@ public class ComposeActivity extends ActionBarActivity
     @VisibleForTesting
     public static final AtomicInteger PENDING_SEND_OR_SAVE_TASKS_NUM = new AtomicInteger(0);
 
-    // String representing the uri of the data directory (used for attachment uri checking).
+    /* Path of the data directory (used for attachment uri checking). */
     private static final String DATA_DIRECTORY_ROOT;
-    private static final String ALTERNATE_DATA_DIRECTORY_ROOT;
 
     // Static initializations
     static {
@@ -301,7 +305,6 @@ public class ComposeActivity extends ActionBarActivity
         SEND_SAVE_TASK_HANDLER = new Handler(handlerThread.getLooper());
 
         DATA_DIRECTORY_ROOT = Environment.getDataDirectory().toString();
-        ALTERNATE_DATA_DIRECTORY_ROOT = DATA_DIRECTORY_ROOT + DATA_DIRECTORY_ROOT;
     }
 
     private final Rect mRect = new Rect();
@@ -1212,7 +1215,8 @@ public class ComposeActivity extends ActionBarActivity
                 TextUtils.isEmpty(htmlInPlainText)) {
             LogUtils.w(LOG_TAG, "FAILED HTML CONVERSION: from %d to %d", message.bodyText.length(),
                     htmlInPlainText.length());
-            Analytics.getInstance().sendEvent("errors", "failed_html_conversion", null, 0);
+            Analytics.getInstance().sendEvent(ANALYTICS_CATEGORY_ERRORS,
+                    "failed_html_conversion", null, 0);
             message.bodyHtml = "<p>" + message.bodyText + "</p>";
         }
         message.embedsExternalResources = false;
@@ -1998,6 +2002,15 @@ public class ComposeActivity extends ActionBarActivity
     }
 
     /**
+     * @return the authority of EmailProvider for this app. should be overridden in concrete
+     * app implementations. can't be known here because this project doesn't know about that sort
+     * of thing.
+     */
+    protected String getEmailProviderAuthority() {
+        throw new UnsupportedOperationException("unimplemented, EmailProvider unknown");
+    }
+
+    /**
      * Helper function to handle a list of uris to attach.
      * @return the total size of all successfully attached files.
      */
@@ -2006,38 +2019,26 @@ public class ComposeActivity extends ActionBarActivity
         for (Uri uri : uris) {
             try {
                 if (uri != null) {
-                    if ("file".equals(uri.getScheme())) {
+                    if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
+                        // We must not allow files from /data, even from our process.
                         final File f = new File(uri.getPath());
-                        // We should not be attaching any files from the data directory UNLESS
-                        // the data directory is part of the calling process.
                         final String filePath = f.getCanonicalPath();
                         if (filePath.startsWith(DATA_DIRECTORY_ROOT)) {
-                            final String callingPackage = getCallingPackage();
-                            if (callingPackage == null) {
-                                showErrorToast(getString(R.string.attachment_permission_denied));
-                                continue;
-                            }
-
-                            // So it looks like the data directory are usually /data/data, but
-                            // DATA_DIRECTORY_ROOT is only /data.. so let's check for both
-                            final String pathWithoutRoot;
-                            // We add 1 to the length for the additional / before the package name.
-                            if (filePath.startsWith(ALTERNATE_DATA_DIRECTORY_ROOT)) {
-                                pathWithoutRoot = filePath.substring(
-                                        ALTERNATE_DATA_DIRECTORY_ROOT.length() + 1);
-                            } else {
-                                pathWithoutRoot = filePath.substring(
-                                        DATA_DIRECTORY_ROOT.length() + 1);
-                            }
-
-                            // If we are trying to access a data package that's not part of the
-                            // calling package, show error toast and ignore this attachment.
-                            if (!pathWithoutRoot.startsWith(callingPackage)) {
-                                showErrorToast(getString(R.string.attachment_permission_denied));
-                                continue;
-                            }
+                          showErrorToast(getString(R.string.attachment_permission_denied));
+                          Analytics.getInstance().sendEvent(ANALYTICS_CATEGORY_ERRORS,
+                                  "send_intent_attachment", "data_dir", 0);
+                          continue;
+                        }
+                    } else if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+                        // disallow attachments from our own EmailProvider (b/27308057)
+                        if (getEmailProviderAuthority().equals(uri.getAuthority())) {
+                            showErrorToast(getString(R.string.attachment_permission_denied));
+                            Analytics.getInstance().sendEvent(ANALYTICS_CATEGORY_ERRORS,
+                                    "send_intent_attachment", "email_provider", 0);
+                            continue;
                         }
                     }
+
                     if (!handleSpecialAttachmentUri(uri)) {
                         final Attachment a = mAttachmentsView.generateLocalAttachment(uri);
                         attachments.add(a);
@@ -3446,6 +3447,7 @@ public class ComposeActivity extends ActionBarActivity
                 synchronized (mDraftLock) {
                     mDraftId = message.id;
                     mDraft = message;
+                    saveDraftUriToTempFile(mDraft.uri);
                     if (sRequestMessageIdMap != null) {
                         sRequestMessageIdMap.put(sendOrSaveMessage.mRequestId, mDraftId);
                     }
@@ -3535,6 +3537,23 @@ public class ComposeActivity extends ActionBarActivity
         if (!save) {
             finish();
         }
+    }
+
+    private void saveDraftUriToTempFile(Uri mUri){
+        SharedPreferences mSp = getSharedPreferencesInstance();
+        SharedPreferences.Editor editor = mSp.edit();
+        editor.putString(KEY_DRAFT_URI, mUri.toString());
+        editor.commit();
+    }
+
+    private Uri getDraftUriFromTempFile(){
+        SharedPreferences mSp = getSharedPreferencesInstance();
+        String mUri = mSp.getString(KEY_DRAFT_URI,"");
+        return Uri.parse(mUri);
+    }
+
+    private SharedPreferences getSharedPreferencesInstance(){
+        return getSharedPreferences(PRE_DRAFT_URI, Activity.MODE_PRIVATE);
     }
 
     /**
@@ -3865,6 +3884,9 @@ public class ComposeActivity extends ActionBarActivity
                 if (!mAccount.expungeMessageUri.equals(Uri.EMPTY)) {
                     getContentResolver().update(mAccount.expungeMessageUri, values, null, null);
                 } else {
+                    if(mDraft.uri == null){
+                        mDraft.uri = getDraftUriFromTempFile();
+                    }
                     getContentResolver().delete(mDraft.uri, null, null);
                 }
                 // This is not strictly necessary (since we should not try to
