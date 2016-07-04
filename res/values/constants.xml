@@ -122,4 +122,5 @@
     <!-- Maximum width in characters of the senders in the thread list -->
     <integer name="senders_with_attachment_lengths">25</integer>
     <integer name="senders_lengths">27</integer>
+    <bool name="enable_execute_local_search">true</bool>
 </resources>
