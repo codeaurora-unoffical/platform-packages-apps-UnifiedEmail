@@ -51,6 +51,7 @@ import android.speech.RecognizerIntent;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -61,6 +62,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.emailcommon.service.SearchParams;
 import com.android.mail.ConversationListContext;
 import com.android.mail.MailLogService;
 import com.android.mail.R;
@@ -443,6 +445,8 @@ public abstract class AbstractActivityController implements ActivityController,
      */
     public static final int LAST_FRAGMENT_LOADER_ID = 1000;
 
+    private static final int LOADER_LOCALSEARCH_CONVERSATION_LIST = 1100;
+
     /** Code returned after an account has been added. */
     private static final int ADD_ACCOUNT_REQUEST_CODE = 1;
     /** Code returned when the user has to enter the new password on an existing account. */
@@ -503,6 +507,8 @@ public abstract class AbstractActivityController implements ActivityController,
     private final MailDrawerListener mDrawerListener = new MailDrawerListener();
     private boolean mHideMenuItems;
 
+    private int mFolderType;
+
     private final DrawIdler mDrawIdler = new DrawIdler();
 
     public static final String SYNC_ERROR_DIALOG_FRAGMENT_TAG = "SyncErrorDialogFragment";
@@ -556,6 +562,7 @@ public abstract class AbstractActivityController implements ActivityController,
         return mAccount;
     }
 
+    @Override
     public ConversationListContext getCurrentListContext() {
         return mConvListContext;
     }
@@ -940,6 +947,7 @@ public abstract class AbstractActivityController implements ActivityController,
                 || (mViewMode.getMode() != ViewMode.CONVERSATION_LIST)) {
             setListContext(folder, query);
             showConversationList(mConvListContext);
+            mSearchViewController.restoreLocalSearch(mContext);
             // Touch the current folder: it is different, and it has been accessed.
             if (mFolder != null) {
                 mRecentFolderList.touchFolder(mFolder, mAccount);
@@ -1177,9 +1185,15 @@ public abstract class AbstractActivityController implements ActivityController,
 
     @Override
     public void onConversationListVisibilityChanged(boolean visible) {
-        mFloatingComposeButton.setVisibility(
-                !ViewMode.isSearchMode(mViewMode.getMode()) && visible ? View.VISIBLE : View.GONE);
-
+        if (Utils.enableExecuteLocalSearch(mContext)) {
+            mFloatingComposeButton.setVisibility(
+                    !MaterialSearchViewController.isOnlyActionbar(mSearchViewController)
+                            && visible ? View.VISIBLE : View.GONE);
+        } else {
+            mFloatingComposeButton.setVisibility(
+                    !ViewMode.isSearchMode(mViewMode.getMode()) && visible ? View.VISIBLE
+                            : View.GONE);
+        }
         informCursorVisiblity(visible);
         commitAutoAdvanceOperation();
 
@@ -1368,6 +1382,8 @@ public abstract class AbstractActivityController implements ActivityController,
         // Create the accounts loader; this loads the account switch spinner.
         mActivity.getLoaderManager().initLoader(LOADER_ACCOUNT_CURSOR, Bundle.EMPTY,
                 mAccountCallbacks);
+
+        mSearchViewController.restoreLocalSearch(mContext);
     }
 
     /**
@@ -3439,7 +3455,8 @@ public abstract class AbstractActivityController implements ActivityController,
                 return null;
             }
             return new ConversationCursorLoader(mActivity, account,
-                    folder.conversationListUri, folder.getTypeDescription(),
+                    getCurrentFolderConversationListUri(id, args, folder),
+                    folder.getTypeDescription(),
                     ignoreInitialConversationLimit);
         }
 
@@ -3477,6 +3494,9 @@ public abstract class AbstractActivityController implements ActivityController,
                 informCursorVisiblity(true);
             }
             perhapsShowFirstConversation();
+
+            showLocalSearchResult(loader, data);
+
         }
 
         @Override
@@ -4489,4 +4509,159 @@ public abstract class AbstractActivityController implements ActivityController,
             handleUpPress();
         }
     }
+
+
+    private void loadConversationListData(boolean isFolderUpdated) {
+        if (mFolder == null || !mFolder.isInitialized()) {
+            return;
+        }
+        final LoaderManager lm = mActivity.getLoaderManager();
+
+        if (mConvListContext != null
+                && ConversationListContext.isLocalSearchResult(mConvListContext)) {
+            executedLocalSearchLoader(lm);
+        } else {
+            executedChangeFolderLoader(lm, isFolderUpdated);
+        }
+    }
+
+
+    private void executedLocalSearchLoader(LoaderManager lm) {
+        final Bundle args = new Bundle(4);
+        args.putParcelable(BUNDLE_ACCOUNT_KEY, mAccount);
+        args.putParcelable(BUNDLE_FOLDER_KEY, mFolder);
+        args.putString(SearchParams.BUNDLE_QUERY_FACTOR, mConvListContext.getSearchFactor());
+        args.putString(SearchParams.BUNDLE_QUERY_FILTER, mConvListContext.getSearchQuery());
+
+        if (lm.getLoader(LOADER_CONVERSATION_LIST) != null) {
+            lm.destroyLoader(LOADER_CONVERSATION_LIST);
+        }
+        lm.restartLoader(LOADER_LOCALSEARCH_CONVERSATION_LIST, args, mListCursorCallbacks);
+    }
+
+    private void executedChangeFolderLoader(LoaderManager lm, boolean isFolderUpdated) {
+        if (lm.getLoader(LOADER_LOCALSEARCH_CONVERSATION_LIST) != null) {
+            lm.destroyLoader(LOADER_LOCALSEARCH_CONVERSATION_LIST);
+        }
+        final ConversationCursorLoader ccl = (ConversationCursorLoader) ((Object) lm
+                .getLoader(LOADER_CONVERSATION_LIST));
+        if (ccl != null && !ccl.getUri().equals(mFolder.conversationListUri)
+                && isFolderUpdated) {
+            lm.destroyLoader(LOADER_CONVERSATION_LIST);
+        }
+        final Bundle args = new Bundle(2);
+        args.putParcelable(BUNDLE_ACCOUNT_KEY, mAccount);
+        args.putParcelable(BUNDLE_FOLDER_KEY, mFolder);
+        args.putBoolean(BUNDLE_IGNORE_INITIAL_CONVERSATION_LIMIT_KEY,
+                mIgnoreInitialConversationLimit);
+        mIgnoreInitialConversationLimit = false;
+        lm.initLoader(LOADER_CONVERSATION_LIST, args, mListCursorCallbacks);
+    }
+
+    @Override
+    public void executeLocalSearch(String query, String factor, boolean isUser) {
+        mSearchViewController.saveRecentQuery(query);
+        AnalyticsTimer.getInstance().trackStart(AnalyticsTimer.SEARCH_TO_LIST);
+        mSearchViewController.showSearchActionBar(
+                MaterialSearchViewController.SEARCH_VIEW_STATE_ONLY_ACTIONBAR);
+        buildLocalSearch(query, factor, isUser);
+        if (!mConvListContext.isLocalSearch()) {
+            return;
+        }
+        loadConversationListData(false);
+    }
+
+    @Override
+    public void buildLocalSearch(String query, String factor, boolean isUser) {
+        mFloatingComposeButton.setVisibility(View.GONE);
+        if (mConvListContext == null || TextUtils.isEmpty(query)) {
+            return;
+        }
+        if (!mConvListContext.isLocalSearch()) {
+            mActivity.invalidateOptionsMenu();
+        }
+        mConvListContext.setSearchQueryText(query);
+        if (factor == null) {
+            mConvListContext.setSearchFactor(SearchParams.SEARCH_FACTOR_ALL);
+        } else {
+            if (isUser) {
+                mCheckedSet.clear();
+            }
+            mConvListContext.setSearchFactor(factor);
+        }
+        mConvListContext.setLocalSearch(true);
+    }
+
+    @Override
+    public void exitLocalSearch() {
+        mFolder.type = mFolderType;
+        if (getConversationListFragment() != null) {
+            getConversationListFragment().exitSeachView();
+        }
+        if (mConvListContext == null) {
+            return;
+        }
+        mConvListContext.setLocalSearch(false);
+        mConvListContext.setSearchQueryText(null);
+        mConvListContext.setSearchFactor(null);
+        // refresh conversation list.
+        mFloatingComposeButton.setVisibility(View.VISIBLE);
+        mActivity.invalidateOptionsMenu();
+        loadConversationListData(false);
+    }
+
+    private Uri getCurrentFolderConversationListUri(int id, Bundle args, Folder folder) {
+        Uri uri = folder.conversationListUri;
+        if (Utils.enableExecuteLocalSearch(mContext)
+                && id == LOADER_LOCALSEARCH_CONVERSATION_LIST) {
+            String filter = args.getString(SearchParams.BUNDLE_QUERY_FILTER);
+            String factor = args.getString(SearchParams.BUNDLE_QUERY_FACTOR);
+            mFolderType = folder.type;
+            folder.type = FolderType.SEARCH;
+            if (!TextUtils.isEmpty(filter) && !TextUtils.isEmpty(factor)) {
+                uri = Utils.buildLocalSearchUri(folder, filter, factor);
+            }
+        }
+        return uri;
+    }
+
+    private void showLocalSearchResult(Loader<ConversationCursor> loader, ConversationCursor data) {
+        if (!Utils.enableExecuteLocalSearch(mContext)) {
+            return;
+        }
+        if (loader.getId() == LOADER_LOCALSEARCH_CONVERSATION_LIST) {
+            updateSearchResultCount(data.getCount());
+            mCheckedSet.validateAgainstCursor(mConversationListCursor);
+        } else if (mConvListContext != null && mConvListContext.isLocalSearch()) {
+            updateSearchResultCount(0);
+        }
+
+        if (getConversationListFragment() == null) {
+            if (mActivity == null || mActivity.getFragmentManager().isDestroyed()) {
+                return;
+            }
+            int mode = mViewMode.getMode();
+            switch (mode) {
+                case ViewMode.CONVERSATION_LIST:
+                case ViewMode.SEARCH_RESULTS_LIST:
+                    showConversationList(mConvListContext);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public void updateSearchResultCount(int count) {
+
+        if (mSearchViewController != null) {
+            if (count == 0
+                    && SearchParams.SEARCH_FACTOR_ALL.equals(mConvListContext.getSearchFactor())) {
+                mSearchViewController.updateSearchResultCount(count, true);
+            } else {
+                mSearchViewController.updateSearchResultCount(count, false);
+            }
+        }
+    }
+
 }

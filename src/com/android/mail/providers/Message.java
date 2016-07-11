@@ -67,9 +67,13 @@ public class Message implements Parcelable, HtmlMessage {
     // regex that matches content id surrounded by "<>" optionally.
     private static final Pattern REMOVE_OPTIONAL_BRACKETS = Pattern.compile("^<?([^>]+)>?$");
 
-
     private static final Pattern JUDGE_URL_PATTERN = Pattern
-            .compile("(http(s)?://)?([\\w-]+\\.)+([\\w-]+\\.)+([\\w-./?%&#=]*)?");
+            .compile("(http(s)?://)?([A-Za-z0-9]+\\.)+([A-Za-z0-9]+\\.)+"
+                    + "([A-Za-z0-9-()./?%&#=;]*)?");
+    private final static String DIV_STYLE = "<div style=\"line-height:1.7;color:#000000;"
+            + "font-size:14px;font-family:&#39;arial&#39;\">";
+    private final static int MATCHER_BODYHTML = 0;
+    private final static int MATCHER_SNNIPET = 1;
     /**
      * @see BaseColumns#_ID
      */
@@ -436,7 +440,15 @@ public class Message implements Parcelable, HtmlMessage {
             loadMoreUri = Utils.getValidUri(
                     cursor.getString(UIProvider.MESSAGE_LOAD_MORE_URI_COLUMN));
             if (bodyHtml != null) {
-                isIncludeUrl();
+                matchUrl(bodyHtml, MATCHER_BODYHTML);
+            } else {
+                StringBuilder builderBodyHtml = new StringBuilder();
+                bodyHtml = snippet;
+                builderBodyHtml.append(DIV_STYLE);
+                matchUrl(snippet, MATCHER_SNNIPET);
+                builderBodyHtml.append(bodyHtml);
+                builderBodyHtml.append("</div>");
+                bodyHtml = builderBodyHtml.toString();
             }
         }
     }
@@ -755,25 +767,57 @@ public class Message implements Parcelable, HtmlMessage {
         return draftType != UIProvider.DraftType.NOT_A_DRAFT;
     }
 
-    private void isIncludeUrl() {
+
+    private void matchUrl(String needMatcher, int flag) {
         Matcher matcher = JUDGE_URL_PATTERN.matcher(bodyHtml);
-        StringBuffer result = new StringBuffer();
         while (matcher.find()) {
-            String urlStr = matcher.group();
-            if (!urlStr.contains("://")) {
-                urlStr = "https://" + urlStr;
+            switch (flag) {
+                case MATCHER_BODYHTML:
+                    buildHrefUrl(matcher.group());
+                    break;
+                case MATCHER_SNNIPET:
+                    buildBodyHtml(matcher.group());
+                default:
+                    break;
             }
-            StringBuffer replace = new StringBuffer();
-            replace.append("<a href=\"").append(urlStr);
-            isAddUrl(replace, matcher.group());
         }
     }
 
-    private void isAddUrl(StringBuffer href, String matcher) {
-        if (!bodyHtml.contains(href.toString())) {
-            href.append("\" target=\"_blank\">" + matcher + "</a>");
+    private void buildHrefUrl(String matcher) {
+        boolean isAdd = true;
+        StringBuffer href = new StringBuffer();
+        href.append("<a href=\"");
+        if (matcher.contains("://")) {
+            href.append(matcher);
+            if (bodyHtml.contains(href.toString())) {
+                isAdd = false;
+            }
+        } else {
+            String httpHead = href.toString() + "http://" + matcher;
+            String httpsHead = href.toString() + "https://" + matcher;
+            if (bodyHtml.contains(httpHead)) {
+                isAdd = false;
+            } else if (bodyHtml.contains(httpsHead)) {
+                isAdd = false;
+            } else {
+                href.append("http://").append(matcher);
+            }
+        }
+        if (isAdd) {
+            href.append("\">" + matcher + "</a>");
             bodyHtml = bodyHtml.replace(matcher, href.toString());
         }
     }
 
+    private void buildBodyHtml(String matcher) {
+        StringBuilder href = new StringBuilder();
+        href.append("<a href=\"");
+        if (matcher.contains("://")) {
+            href.append(matcher);
+        } else {
+            href.append("http://").append(matcher);
+        }
+        href.append("\">" + matcher + "</a>");
+        bodyHtml = bodyHtml.replace(matcher, href.toString());
+    }
 }

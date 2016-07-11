@@ -478,6 +478,13 @@
     <string name="general_preferences_title" msgid="4212138728220418162">"常规设置"</string>
     <string name="activity_preferences" msgid="8966077432517613292">"设置"</string>
 
+    <!-- Email search function filter text-->
+    <string name="mail_search_factor_all">全部</string>
+    <string name="mail_search_factor_subject">主题</string>
+    <string name="mail_search_factor_sender">发件人</string>
+    <string name="mail_search_factor_receiver">收件人</string>
+    <string name="mail_search_factor_result">搜索结果</string>
+
     <!--  Settings screen, confirm on action option title [CHAR LIMIT=150] -->
     <string name="preference_confirm_before_forward_title">转发前先确认</string>
     <!-- Confirm forward message -->

@@ -1157,6 +1157,14 @@
 
     <string name="user_agent_format" translatable="false">%1$s AndroidUnifiedEmail/%2$s</string>
 
+    <!--Email search function filter text  -->
+    <string name="mail_search_factor_all">ALL</string>
+    <string name="mail_search_factor_subject">SUBJECT</string>
+    <string name="mail_search_factor_sender">SENDER</string>
+    <string name="mail_search_factor_receiver">RECEIVER</string>
+    <string name="mail_search_factor_result">RESULTS</string>
+
+
     <!--  Settings screen, confirm on action option title [CHAR LIMIT=150] -->
     <string name="preference_confirm_before_forward_title">Confirm before forwarding</string>
     <!-- Confirm forward dialog message -->
