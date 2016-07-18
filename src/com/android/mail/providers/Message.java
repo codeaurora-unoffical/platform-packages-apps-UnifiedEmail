@@ -441,7 +441,7 @@ public class Message implements Parcelable, HtmlMessage {
                     cursor.getString(UIProvider.MESSAGE_LOAD_MORE_URI_COLUMN));
             if (bodyHtml != null) {
                 matchUrl(bodyHtml, MATCHER_BODYHTML);
-            } else {
+            } else if (snippet != null) {
                 StringBuilder builderBodyHtml = new StringBuilder();
                 bodyHtml = snippet;
                 builderBodyHtml.append(DIV_STYLE);
@@ -769,7 +769,10 @@ public class Message implements Parcelable, HtmlMessage {
 
 
     private void matchUrl(String needMatcher, int flag) {
-        Matcher matcher = JUDGE_URL_PATTERN.matcher(bodyHtml);
+        if (needMatcher == null) {
+            return;
+        }
+        Matcher matcher = JUDGE_URL_PATTERN.matcher(needMatcher);
         while (matcher.find()) {
             switch (flag) {
                 case MATCHER_BODYHTML:
