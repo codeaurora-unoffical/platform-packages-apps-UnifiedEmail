@@ -368,6 +368,7 @@ public class ComposeActivity extends ActionBarActivity
     private boolean mRespondedInline;
     private boolean mPerformedSendOrDiscard = false;
 
+    private ArrayList<Attachment> mInsertAttachments;
     // OnKeyListener solely used for intercepting CTRL+ENTER event for SEND.
     private final View.OnKeyListener mKeyListenerForSendShortcut = new View.OnKeyListener() {
         @Override
@@ -559,7 +560,7 @@ public class ComposeActivity extends ActionBarActivity
             actionBar.setIcon(null);
             actionBar.setDisplayUseLogoEnabled(false);
         }
-
+        mInsertAttachments = new ArrayList<Attachment>();
         mInnerSavedState = (savedInstanceState != null) ?
                 savedInstanceState.getBundle(KEY_INNER_SAVED_STATE) : null;
         checkValidAccounts();
@@ -1628,7 +1629,16 @@ public class ComposeActivity extends ActionBarActivity
         if (action == ComposeActivity.FORWARD
                 || action == ComposeActivity.FORWARD_DROP_UNLOADED_ATTS
                 || mAttachmentsChanged) {
-            initAttachments(mRefMessage, action == ComposeActivity.FORWARD_DROP_UNLOADED_ATTS);
+            if ((action == REPLY || action == REPLY_ALL)) {
+                if (mInsertAttachments != null && mInsertAttachments.size() != 0) {
+                    addAttachments(mInsertAttachments,
+                            action == ComposeActivity.FORWARD_DROP_UNLOADED_ATTS);
+                }
+            } else {
+                initAttachments(mRefMessage,
+                        action == ComposeActivity.FORWARD_DROP_UNLOADED_ATTS);
+            }
+
         }
     }
 
@@ -1917,7 +1927,13 @@ public class ComposeActivity extends ActionBarActivity
 
     @VisibleForTesting
     protected void initAttachments(Message refMessage, boolean dropUnloaded) {
-        addAttachments(refMessage.getAttachments(), dropUnloaded);
+        if (mInsertAttachments != null && mInsertAttachments.size() != 0) {
+            mInsertAttachments.addAll(refMessage.getAttachments());
+            addAttachments(mInsertAttachments, dropUnloaded);
+        } else {
+            addAttachments(refMessage.getAttachments(), dropUnloaded);
+        }
+
     }
 
     public long addAttachments(List<Attachment> attachments, boolean dropUnloaded) {
@@ -2594,6 +2610,7 @@ public class ComposeActivity extends ActionBarActivity
         sendOrSaveWithSanityChecks(false, true, false, false);
         logSendOrSave(false /* save */);
         mPerformedSendOrDiscard = true;
+        mInsertAttachments.clear();
     }
 
     private void doSave(boolean showToast) {
@@ -3708,9 +3725,16 @@ public class ComposeActivity extends ActionBarActivity
         // 1) Body
         // 2) Attachments
         // If the user made changes to attachments, keep their changes.
-        if (!mAttachmentsChanged) {
-            mAttachmentsView.deleteAllAttachments();
+        if (mAttachmentsChanged && mRefMessage != null) {
+            mInsertAttachments.clear();
+            for (Attachment attachment : mAttachmentsView.getAttachments()) {
+                if (!((ArrayList<Attachment>) mRefMessage.getAttachments()).contains(attachment)) {
+                    mInsertAttachments.add(attachment);
+                }
+            }
         }
+        mAttachmentsView.deleteAllAttachments();
+
     }
 
     private class ComposeModeAdapter extends ArrayAdapter<String> {
