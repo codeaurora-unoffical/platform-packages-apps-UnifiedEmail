@@ -919,8 +919,7 @@ public class FolderListFragment extends ListFragment implements
                     && isSelected
                     && (mCurrentFolderForUnreadCheck != null)
                     && item.mFolder.unreadCount != mCurrentFolderForUnreadCheck.unreadCount) {
-                ((FolderItemView) view).overrideUnreadCount(
-                        mCurrentFolderForUnreadCheck.unreadCount);
+                ((FolderItemView) view).overrideUnreadCount(item.mFolder.unreadCount);
             }
             return view;
         }
