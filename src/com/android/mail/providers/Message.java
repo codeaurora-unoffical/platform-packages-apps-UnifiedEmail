@@ -70,10 +70,6 @@ public class Message implements Parcelable, HtmlMessage {
     private static final Pattern JUDGE_URL_PATTERN = Pattern
             .compile("(http(s)?://)?([A-Za-z0-9]+\\.)+([A-Za-z0-9]+\\.)+"
                     + "([A-Za-z0-9-()./?%&#=;]*)?");
-    private final static String DIV_STYLE = "<div style=\"line-height:1.7;color:#000000;"
-            + "font-size:14px;font-family:&#39;arial&#39;\">";
-    private final static int MATCHER_BODYHTML = 0;
-    private final static int MATCHER_SNNIPET = 1;
     /**
      * @see BaseColumns#_ID
      */
@@ -439,16 +435,8 @@ public class Message implements Parcelable, HtmlMessage {
             messageFlagLoaded = cursor.getInt(UIProvider.MESSAGE_FLAG_LOADED_COLUMN);
             loadMoreUri = Utils.getValidUri(
                     cursor.getString(UIProvider.MESSAGE_LOAD_MORE_URI_COLUMN));
-            if (bodyHtml != null) {
-                matchUrl(bodyHtml, MATCHER_BODYHTML);
-            } else if (snippet != null) {
-                StringBuilder builderBodyHtml = new StringBuilder();
-                bodyHtml = snippet;
-                builderBodyHtml.append(DIV_STYLE);
-                matchUrl(snippet, MATCHER_SNNIPET);
-                builderBodyHtml.append(bodyHtml);
-                builderBodyHtml.append("</div>");
-                bodyHtml = builderBodyHtml.toString();
+            if (!TextUtils.isEmpty(bodyHtml) && !INLINE_IMAGE_PATTERN.matcher(bodyHtml).find()) {
+                matchUrl(bodyHtml);
             }
         }
     }
@@ -752,7 +740,7 @@ public class Message implements Parcelable, HtmlMessage {
             body = bodyHtml;
         } else if (!TextUtils.isEmpty(bodyText)) {
             final SpannableString spannable = new SpannableString(bodyText);
-            Linkify.addLinks(spannable, Linkify.EMAIL_ADDRESSES);
+            Linkify.addLinks(spannable, Linkify.EMAIL_ADDRESSES | Linkify.WEB_URLS);
             body = Html.toHtml(spannable);
         }
         return body;
@@ -768,21 +756,13 @@ public class Message implements Parcelable, HtmlMessage {
     }
 
 
-    private void matchUrl(String needMatcher, int flag) {
+    private void matchUrl(String needMatcher) {
         if (needMatcher == null) {
             return;
         }
         Matcher matcher = JUDGE_URL_PATTERN.matcher(needMatcher);
         while (matcher.find()) {
-            switch (flag) {
-                case MATCHER_BODYHTML:
-                    buildHrefUrl(matcher.group());
-                    break;
-                case MATCHER_SNNIPET:
-                    buildBodyHtml(matcher.group());
-                default:
-                    break;
-            }
+            buildHrefUrl(matcher.group());
         }
     }
 
@@ -812,15 +792,4 @@ public class Message implements Parcelable, HtmlMessage {
         }
     }
 
-    private void buildBodyHtml(String matcher) {
-        StringBuilder href = new StringBuilder();
-        href.append("<a href=\"");
-        if (matcher.contains("://")) {
-            href.append(matcher);
-        } else {
-            href.append("http://").append(matcher);
-        }
-        href.append("\">" + matcher + "</a>");
-        bodyHtml = bodyHtml.replace(matcher, href.toString());
-    }
 }
