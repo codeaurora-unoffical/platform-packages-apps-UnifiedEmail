@@ -450,7 +450,7 @@ public class WidgetService extends RemoteViewsService {
 
             // start with "To: " if we're showing recipients
             if (Folder.shouldShowRecipients(mFolderCapabilities)) {
-                builder.append(SendersView.getFormattedToHeader());
+                builder.append(SendersView.getFormattedToHeader(null));
                 skipToHeader = true;
             }
 

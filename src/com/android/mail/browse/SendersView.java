@@ -439,7 +439,11 @@ public class SendersView {
         return useObjectMe ? sMeObjectString : sMeSubjectString;
     }
 
-    public static SpannableString getFormattedToHeader() {
+    public static SpannableString getFormattedToHeader(Context context) {
+        if (context != null && (sToHeaderString == null || sReadStyleSpan == null)) {
+            //avoid the monkeytest make NPE
+            getSenderResources(context, true /* resourceCachingRequired */);
+        }
         final SpannableString formattedToHeader = new SpannableString(sToHeaderString);
         final CharacterStyle readStyle = CharacterStyle.wrap(sReadStyleSpan);
         formattedToHeader.setSpan(readStyle, 0, formattedToHeader.length(), 0);
