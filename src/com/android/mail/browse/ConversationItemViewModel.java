@@ -282,7 +282,7 @@ public class ConversationItemViewModel {
             // the toHeader should read "To: " if requested
             String toHeader = "";
             if (showToHeader && !TextUtils.isEmpty(participant)) {
-                toHeader = SendersView.getFormattedToHeader().toString();
+                toHeader = SendersView.getFormattedToHeader(context).toString();
             }
 
             boolean isToday = DateUtils.isToday(conversation.dateMs);

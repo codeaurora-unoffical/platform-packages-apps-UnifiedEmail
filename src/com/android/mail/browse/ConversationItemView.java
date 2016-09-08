@@ -1072,7 +1072,7 @@ public class ConversationItemView extends View
 
         // start with "To: " if we're showing recipients
         if (mDisplayedFolder.shouldShowRecipients() && !parts.isEmpty()) {
-            final SpannableString toHeader = SendersView.getFormattedToHeader();
+            final SpannableString toHeader = SendersView.getFormattedToHeader(null);
             CharacterStyle[] spans = toHeader.getSpans(0, toHeader.length(),
                     CharacterStyle.class);
             // There is only 1 character style span; make sure we apply all the
