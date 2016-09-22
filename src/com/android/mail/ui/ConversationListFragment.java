@@ -353,8 +353,7 @@ public final class ConversationListFragment extends Fragment implements
         // Since we now have a controllable activity, load the account from it,
         // and register for
         // future account changes.
-        mAccountType = mActivity.getAccountController().getAccount().getType();
-        mFolderTypeDescription = mActivity.getFolderController().getFolder().getTypeDescription();
+
         mAccount = mAccountObserver.initialize(mActivity.getAccountController());
         mCallbacks = mActivity.getListHandler();
         mErrorListener = mActivity.getErrorListener();
@@ -454,6 +453,11 @@ public final class ConversationListFragment extends Fragment implements
 
         // Show list and start loading list.
         showList();
+
+        mAccountType = mActivity.getAccountController().getAccount().getType();
+        mFolderTypeDescription = mActivity.getFolderController().getFolder() != null ?
+                mActivity.getFolderController().getFolder().getTypeDescription() : null;
+
         ToastBarOperation pendingOp = mActivity.getPendingToastOperation();
         if (pendingOp != null) {
             // Clear the pending operation
