@@ -146,7 +146,7 @@ public final class ConversationListFragment extends Fragment implements
 
     private String mFolderTypeDescription;
 
-    private String mAccountType;
+    private String mAccountType = "";
 
     /**
      * A simple method to update the timestamps of conversations periodically.
@@ -455,6 +455,9 @@ public final class ConversationListFragment extends Fragment implements
         showList();
 
         mAccountType = mActivity.getAccountController().getAccount().getType();
+        if (mAccountType == null) {
+            mAccountType = "";
+        }
         mFolderTypeDescription = mActivity.getFolderController().getFolder() != null ?
                 mActivity.getFolderController().getFolder().getTypeDescription() : null;
 
