@@ -563,9 +563,11 @@ public class ConversationItemView extends View
             ignoreFolderType = -1;
         }
 
-        Utils.traceBeginSection("load folders");
-        mHeader.folderDisplayer.loadConversationFolders(mHeader.conversation,
-                mDisplayedFolder.folderUri, ignoreFolderType);
+        Utils.traceBeginSection("oad folders");
+        if (mDisplayedFolder != null) {
+            mHeader.folderDisplayer.loadConversationFolders(mHeader.conversation,
+                    mDisplayedFolder.folderUri, ignoreFolderType);
+        }
         Utils.traceEndSection();
 
         if (mHeader.showDateText) {
