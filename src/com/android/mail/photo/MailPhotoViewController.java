@@ -334,7 +334,7 @@ public class MailPhotoViewController extends PhotoViewController {
     private void saveAttachment(final Attachment attachment) {
         if (attachment != null && attachment.canSave()) {
             mActionHandler.setAttachment(attachment);
-            mActionHandler.startDownloadingAttachment(UIProvider.AttachmentDestination.EXTERNAL);
+            mActionHandler.saveAttachment(UIProvider.AttachmentDestination.EXTERNAL);
         }
     }
 
