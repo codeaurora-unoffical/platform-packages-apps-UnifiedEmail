@@ -3431,6 +3431,7 @@ public class ComposeActivity extends AppCompatActivity
     @SuppressLint("NewApi")
     private void doAttach(String type) {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         i.setType(type);
