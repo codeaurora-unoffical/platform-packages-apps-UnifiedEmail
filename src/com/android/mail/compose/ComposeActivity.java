@@ -1547,7 +1547,7 @@ public class ComposeActivity extends AppCompatActivity
         }
         initRecipientsFromRefMessage(mRefMessage, action);
         initQuotedTextFromRefMessage(mRefMessage, action);
-        if (action == ComposeActivity.FORWARD || mAttachmentsChanged) {
+        if (action == ComposeActivity.FORWARD && !mAttachmentsChanged) {
             initAttachments(mRefMessage);
         }
     }
