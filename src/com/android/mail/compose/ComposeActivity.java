@@ -51,7 +51,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
 import android.support.v4.app.RemoteInput;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.text.Editable;
 import android.text.Html;
@@ -138,7 +138,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ComposeActivity extends ActionBarActivity
+public class ComposeActivity extends AppCompatActivity
         implements OnClickListener, ActionBar.OnNavigationListener,
         RespondInlineListener, TextWatcher,
         AttachmentAddedOrDeletedListener, OnAccountChangedListener,
@@ -1547,7 +1547,7 @@ public class ComposeActivity extends ActionBarActivity
         }
         initRecipientsFromRefMessage(mRefMessage, action);
         initQuotedTextFromRefMessage(mRefMessage, action);
-        if (action == ComposeActivity.FORWARD || mAttachmentsChanged) {
+        if (action == ComposeActivity.FORWARD && !mAttachmentsChanged) {
             initAttachments(mRefMessage);
         }
     }
@@ -3431,6 +3431,7 @@ public class ComposeActivity extends ActionBarActivity
     @SuppressLint("NewApi")
     private void doAttach(String type) {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         i.setType(type);
@@ -3721,7 +3722,9 @@ public class ComposeActivity extends ActionBarActivity
                 if (!mAccount.expungeMessageUri.equals(Uri.EMPTY)) {
                     getContentResolver().update(mAccount.expungeMessageUri, values, null, null);
                 } else {
-                    getContentResolver().delete(mDraft.uri, null, null);
+                    if (mDraft.uri != null) {
+                        getContentResolver().delete(mDraft.uri, null, null);
+                    }
                 }
                 // This is not strictly necessary (since we should not try to
                 // save the draft after calling this) but it ensures that if we
