@@ -2843,7 +2843,8 @@ public class ComposeActivity extends AppCompatActivity
      */
     private void showRecipientErrorDialog(final String message) {
         final DialogFragment frag = RecipientErrorDialogFragment.newInstance(message);
-        frag.show(getFragmentManager(), "recipient error");
+        getFragmentManager().beginTransaction().add(frag, "recipient error")
+                .commitAllowingStateLoss();
     }
 
     /**
