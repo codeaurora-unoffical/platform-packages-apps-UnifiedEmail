@@ -134,6 +134,7 @@ public class MaterialSearchSuggestionsList extends LinearLayout
                         result.add(new SuggestionItem(suggestion, iconUri));
                     } while (c.moveToNext());
                 }
+            } catch (IllegalStateException e) {
             } finally {
                 if (c != null) {
                     c.close();
