@@ -26,6 +26,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.LoaderManager;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ContentResolver;
@@ -496,7 +497,11 @@ public class ComposeActivity extends AppCompatActivity
         } else if (message != null) {
             intent.setData(Utils.normalizeUri(message.uri));
         }
-        context.startActivity(intent);
+        try {
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e){
+            e.getMessage();
+        }
     }
 
     public static void composeMailto(Context context, Account account, Uri mailto) {
