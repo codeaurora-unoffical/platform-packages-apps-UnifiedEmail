@@ -1365,7 +1365,7 @@ public abstract class AbstractActivityController implements ActivityController,
             handleIntent(intent);
         }
         // Create the accounts loader; this loads the account switch spinner.
-        mActivity.getLoaderManager().initLoader(LOADER_ACCOUNT_CURSOR, Bundle.EMPTY,
+        mActivity.getLoaderManager().restartLoader(LOADER_ACCOUNT_CURSOR, Bundle.EMPTY,
                 mAccountCallbacks);
     }
 
