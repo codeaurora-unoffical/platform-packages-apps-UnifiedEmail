@@ -253,7 +253,6 @@ public abstract class AttachmentTile extends RelativeLayout implements Attachmen
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeString(attachmentIdentifier);
-            dest.writeParcelable(preview, 0);
         }
 
         public static final Parcelable.Creator<AttachmentPreview> CREATOR
@@ -271,7 +270,6 @@ public abstract class AttachmentTile extends RelativeLayout implements Attachmen
 
         private AttachmentPreview(Parcel in) {
             attachmentIdentifier = in.readString();
-            preview = in.readParcelable(null);
         }
 
         public AttachmentPreview(Attachment attachment, Bitmap preview) {
