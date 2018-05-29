@@ -1112,7 +1112,7 @@ public abstract class AbstractActivityController implements ActivityController,
                 // We were waiting for the user to create an account
                 if (resultCode == Activity.RESULT_OK) {
                     // restart the loader to get the updated list of accounts
-                    mActivity.getLoaderManager().initLoader(LOADER_ACCOUNT_CURSOR, Bundle.EMPTY,
+                    mActivity.getLoaderManager().restartLoader(LOADER_ACCOUNT_CURSOR, Bundle.EMPTY,
                             mAccountCallbacks);
                 } else {
                     // The user failed to create an account, just exit the app
@@ -1365,7 +1365,7 @@ public abstract class AbstractActivityController implements ActivityController,
             handleIntent(intent);
         }
         // Create the accounts loader; this loads the account switch spinner.
-        mActivity.getLoaderManager().initLoader(LOADER_ACCOUNT_CURSOR, Bundle.EMPTY,
+        mActivity.getLoaderManager().restartLoader(LOADER_ACCOUNT_CURSOR, Bundle.EMPTY,
                 mAccountCallbacks);
     }
 
