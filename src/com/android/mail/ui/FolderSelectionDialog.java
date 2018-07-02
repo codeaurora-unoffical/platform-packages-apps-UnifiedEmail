@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -86,7 +87,8 @@ public abstract class FolderSelectionDialog extends DialogFragment implements On
         mCurrentFolder = args.getParcelable(ARG_FOLDER_TAG);
         mAccount = args.getParcelable(ARG_ACCOUNT_TAG);
         mBatch = args.getBoolean(ARG_BATCH_TAG);
-        mTarget = Arrays.asList((Conversation[])args.getParcelableArray(ARG_TARGET_TAG));
+        Parcelable[] data = args.getParcelableArray(ARG_TARGET_TAG);
+        mTarget = Arrays.asList(Arrays.copyOf(data, data.length, Conversation[].class));
     }
 
     @Override
